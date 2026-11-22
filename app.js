@@ -128,6 +128,7 @@ function renderForecast(data) {
     const periods = hourly.time.map((time, periodIndex) => ({ time, periodIndex }))
       .filter(({ time }) => time.startsWith(date))
       .filter(({ time }) => Number(time.slice(11, 13)) % 3 === 0)
+      .filter(({ time }) => new Date(time).getTime() >= new Date(current.time).getTime())
       .slice(0, 8);
     const outlook = periods.map(({ time, periodIndex }) => {
       const timestamp = new Date(time);
@@ -140,7 +141,7 @@ function renderForecast(data) {
     }).join("");
     const row = document.createElement("article");
     row.className = "day-row";
-    row.innerHTML = `<div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div><div class="day-outlook"><div class="outlook-heading"><strong>3-hour conditions</strong><small>24 hours</small></div><div class="outlook-grid">${outlook}</div></div>`;
+    row.innerHTML = `<div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div><div class="day-outlook"><div class="outlook-grid">${outlook}</div></div>`;
     return row;
   }));
   $("#date-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", timeZone: data.weather.timezone }).format(new Date(current.time));

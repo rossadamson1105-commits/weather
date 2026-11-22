@@ -114,10 +114,10 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .source-value { color: var(--accent); font-size: 13px; font-weight: 700; white-space: nowrap; }
 .source-unavailable { color: var(--muted); font-size: 9px; white-space: nowrap; }
 .week-panel { margin-top: 15px; }
-.week-columns, .day-row { display: grid; grid-template-columns: minmax(100px, .75fr) minmax(145px, 1.1fr) minmax(105px, .7fr) minmax(72px, .5fr); align-items: center; column-gap: 16px; }
+.week-columns, .day-row { display: grid; grid-template-columns: minmax(100px, .75fr) minmax(145px, 1.1fr) minmax(105px, .7fr) minmax(72px, .5fr); align-items: start; column-gap: 16px; }
 .week-columns { margin-top: 23px; padding: 0 13px 9px; color: #81877b; font-size: 8px; font-weight: 700; letter-spacing: .8px; }
 .week-list { border-top: 1px solid var(--line); }
-.day-row { min-height: 66px; padding: 10px 13px; border-bottom: 1px solid var(--line); }
+.day-row { min-height: 178px; padding: 10px 13px; border-bottom: 1px solid var(--line); }
 .day-row:last-child { border-bottom: 0; }
 .day-date { min-width: 0; display: grid; gap: 3px; }
 .day-date strong { color: var(--ink); font-size: 12px; font-weight: 700; }
@@ -129,19 +129,15 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .day-temperature span { color: var(--muted); font-size: 10px; }
 .day-rain { display: flex; align-items: center; gap: 6px; color: var(--accent); font-size: 11px; }
 .day-rain span { font-size: 13px; }
-.day-row { min-height: 82px; }
-.day-outlook { grid-column: 1 / -1; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
-.day-outlook > .outlook-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 7px; }
-.day-outlook > .outlook-heading strong { color: var(--ink); font-size: 9px; }
-.day-outlook > .outlook-heading small { color: var(--muted); font-size: 8px; }
+.day-outlook { grid-column: 1 / -1; min-width: 0; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
 .outlook-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 6px; background: var(--soft); }
-.period { min-width: 0; min-height: 92px; display: grid; justify-items: center; align-content: start; gap: 3px; padding: 9px 6px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; }
+.period { min-width: 0; min-height: 82px; display: grid; grid-template-columns: 1fr auto; justify-items: center; align-items: center; column-gap: 6px; row-gap: 2px; padding: 7px 8px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; }
 .period:nth-child(4n + 1) { border-left: 0; }
 .period:nth-last-child(-n + 4) { border-bottom: 0; }
-.period small { color: var(--muted); font-size: 8px; }
-.period b { color: var(--accent); font-size: 17px; font-weight: 400; }
-.period strong { color: var(--ink); font-size: 12px; }
-.period span { color: var(--muted); font-size: 8px; white-space: nowrap; }
+.period small { grid-column: 1 / -1; color: var(--muted); font-size: 9px; text-align: center; }
+.period b { grid-column: 1; color: var(--accent); font-size: 18px; font-weight: 400; }
+.period strong { grid-column: 2; color: var(--ink); font-size: 12px; }
+.period span { grid-column: 1 / -1; color: var(--muted); font-size: 8px; white-space: nowrap; }
 
 .attribution { margin: 12px 0 0; color: var(--muted); font-size: 9px; }
 .attribution a { color: inherit; }
