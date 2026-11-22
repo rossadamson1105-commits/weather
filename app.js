@@ -54,10 +54,10 @@ function setTheme(theme, save = false) {
   }
 }
 
-let preferredTheme = "light";
+let preferredTheme = "dark";
 try {
   const savedTheme = localStorage.getItem("weather-theme");
-  preferredTheme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  preferredTheme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "dark";
 } catch {}
 setTheme(preferredTheme);
 themeToggle.addEventListener("click", () => {
@@ -254,15 +254,23 @@ async function loadWeather(latitude, longitude, location, forecastDays = 7) {
 async function searchCity(city) {
   $("#status").hidden = false;
   $("#status").textContent = `Searching for ${city}...`;
-  const params = new URLSearchParams({ name: city, count: "10", language: "en", format: "json" });
+  const parts = city.split(",").map((part) => part.trim()).filter(Boolean);
+  const townName = parts[0] || city;
+  const suffixes = parts.slice(1).join(", ");
+  const params = new URLSearchParams({ name: townName, count: "10", language: "en", format: "json" });
   const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${params}`);
   if (!response.ok) throw new Error("City search is temporarily unavailable.");
   const result = await response.json();
   if (!result.results?.length) throw new Error(`Couldn't find "${city}". Try another city.`);
-  const exactMatches = result.results.filter((place) => place.name.toLowerCase() === city.toLowerCase());
-  const place = exactMatches.find((place) => place.country_code === "GB") || exactMatches[0] || result.results[0];
-  const townName = place.name || city;
-  const location = [townName, place.admin2, place.admin1, place.country_code]
+  const exactMatches = result.results.filter((place) => place.name.toLowerCase() === townName.toLowerCase());
+  const suffixMatch = exactMatches.find((place) => suffixes.toLowerCase().split(", ").every((suffix) =>
+    [place.admin1, place.admin2, place.admin3, place.country_code, place.country].filter(Boolean).some((field) =>
+      field.toLowerCase().includes(suffix)
+    )
+  ));
+  const place = suffixMatch || exactMatches.find((place) => place.country_code === "GB") || exactMatches[0] || result.results[0];
+  const resolvedTownName = place.name || townName;
+  const location = [resolvedTownName, place.admin2, place.admin1, place.country_code]
     .filter((value, index, values) => value && values.indexOf(value) === index)
     .join(", ");
   await loadWeather(place.latitude, place.longitude, location);

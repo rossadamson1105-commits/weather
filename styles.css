@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   font-family: "DM Sans", sans-serif;
   color: var(--ink);
   background: #000;
@@ -64,12 +64,15 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px 
 .eyebrow { margin: 0 0 7px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 h1, h2, p { margin-top: 0; }
 h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georgia, serif; }
-.search { width: min(300px, 100%); height: 45px; display: flex; align-items: center; gap: 9px; padding: 0 6px 0 13px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); }
+.search-wrap { width: min(300px, 100%); }
+.search { width: 100%; height: 45px; display: flex; align-items: center; gap: 9px; padding: 0 6px 0 13px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); }
 .search > span { color: var(--muted); font-size: 23px; }
 .search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 13px; }
 .search input::placeholder { color: var(--muted); }
 .search button { min-width: 38px; height: 33px; border: 0; border-radius: 5px; background: var(--green); color: white; font-size: 12px; font-weight: 700; }
 .search button:hover, .locate:hover { opacity: .76; }
+.search-hint { margin: 7px 0 0; color: var(--muted); font-size: 9px; line-height: 1.4; }
+.search-hint span { color: var(--ink); }
 .status { min-height: 20px; margin: -8px 0 13px; color: var(--status-error); font-size: 13px; }
 .top-grid { display: grid; grid-template-columns: 1fr; gap: 15px; animation: appear .4s ease-out both; }
 .lower-grid { display: grid; grid-template-columns: 1.07fr .93fr; gap: 15px; animation: appear .4s ease-out both; }
@@ -177,7 +180,7 @@ footer span:first-child { color: var(--ink); font-weight: 700; }
 @media (max-width: 760px) {
   .shell { width: min(100% - 32px, 520px); padding-top: 35px; }
   .intro { align-items: stretch; flex-direction: column; gap: 17px; margin-bottom: 20px; }
-  .search { width: 100%; }
+  .search-wrap, .search { width: 100%; }
   .top-grid, .lower-grid { grid-template-columns: 1fr; }
   .weather-panel { min-height: 275px; }
   .source-list { grid-template-columns: 1fr 1fr; }

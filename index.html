@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=saved-location-1" />
-    <script src="app.js?v=saved-location-1" defer></script>
+    <link rel="stylesheet" href="styles.css?v=search-hint-1" />
+    <script src="app.js?v=search-hint-1" defer></script>
   </head>
   <body>
     <header class="topbar">
@@ -20,7 +20,7 @@
           <button class="unit" data-unit="fahrenheit" aria-pressed="false" type="button">°F</button>
           <button class="unit active" data-unit="celsius" aria-pressed="true" type="button">°C</button>
         </div>
-        <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode" title="Switch to dark mode"><span id="theme-icon" aria-hidden="true">☾</span><span id="theme-label">Dark</span></button>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="true" aria-label="Switch to light mode" title="Switch to light mode"><span id="theme-icon" aria-hidden="true">☀</span><span id="theme-label">Light</span></button>
         <button class="locate" id="locate" type="button" title="Use my location"><span aria-hidden="true">◎</span> My location</button>
       </div>
     </header>
@@ -31,12 +31,15 @@
           <p class="eyebrow">A forecast for your day</p>
           <h1>Know the weather.</h1>
         </div>
-        <form class="search" id="search-form" role="search">
-          <label class="visually-hidden" for="city-input">Search for a city</label>
-          <span aria-hidden="true">⌕</span>
-          <input id="city-input" type="search" placeholder="Search a city" autocomplete="off" required />
-          <button type="submit">Go</button>
-        </form>
+        <div class="search-wrap">
+          <form class="search" id="search-form" role="search">
+            <label class="visually-hidden" for="city-input">Search for a location</label>
+            <span aria-hidden="true">⌕</span>
+            <input id="city-input" type="search" placeholder="Search a location" autocomplete="off" required />
+            <button type="submit">Go</button>
+          </form>
+          <p class="search-hint">Try a town, county or state, and country. <span>e.g. Bath, Somerset, GB</span></p>
+        </div>
       </section>
 
       <p class="status" id="status" role="status" aria-live="polite">Getting Glasgow's forecast...</p>
