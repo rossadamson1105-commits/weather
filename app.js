@@ -82,7 +82,8 @@ setTheme(preferredTheme);
 const privacyNote = $("#privacy-note");
 document.body.classList.toggle("consent-open", privacyNote.hidden === false);
 try {
-  if (localStorage.getItem("weather-privacy-accepted") !== "true") privacyNote.hidden = false;
+  const consentChoice = localStorage.getItem("weather-privacy-accepted");
+  if (consentChoice !== "true" && consentChoice !== "false") privacyNote.hidden = false;
 } catch {
   privacyNote.hidden = false;
 }
@@ -114,23 +115,6 @@ $("#decline-privacy").addEventListener("click", () => {
   } catch {}
   privacyNote.hidden = true;
   document.body.classList.remove("consent-open");
-});
-$("#clear-settings").addEventListener("click", () => {
-  try {
-    localStorage.removeItem("weather-location");
-    localStorage.removeItem("weather-theme");
-    localStorage.removeItem("weather-unit");
-    localStorage.removeItem("weather-privacy-accepted");
-  } catch {}
-  setTheme("dark");
-  unit = "celsius";
-  document.querySelectorAll("[data-unit]").forEach((button) => {
-    const active = button.dataset.unit === "celsius";
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-pressed", String(active));
-  });
-  privacyNote.hidden = true;
-  searchCity("Glasgow").catch((error) => { $("#status").textContent = error.message; });
 });
 
 themeToggle.addEventListener("click", () => {

@@ -182,7 +182,7 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .privacy-content h2 { margin: 0 0 14px; font: 500 26px/1.1 "Fraunces", Georgia, serif; }
 .privacy-content ul { display: grid; gap: 10px; margin: 0 0 18px; padding: 0; list-style: none; }
 .privacy-content li { padding: 10px 11px; border-left: 2px solid var(--accent-alt); background: var(--soft); font-size: 11px; line-height: 1.45; }
-.privacy-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.privacy-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .privacy-actions button { min-height: 36px; padding: 0 9px; border: 1px solid var(--line); border-radius: 5px; background: var(--soft); color: var(--ink); font-size: 9px; font-weight: 700; white-space: nowrap; }
 .privacy-actions button:last-child { border-color: var(--accent-alt); background: var(--accent-alt); color: #07110f; }
 .attribution { margin: 12px 0 0; color: var(--muted); font-size: 9px; }
