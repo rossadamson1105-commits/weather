@@ -54,12 +54,51 @@ function setTheme(theme, save = false) {
   }
 }
 
+let preferredUnit = "celsius";
+try {
+  const savedUnit = localStorage.getItem("weather-unit");
+  if (savedUnit === "celsius" || savedUnit === "fahrenheit") preferredUnit = savedUnit;
+} catch {}
+unit = preferredUnit;
+document.querySelectorAll("[data-unit]").forEach((button) => {
+  const active = button.dataset.unit === preferredUnit;
+  button.classList.toggle("active", active);
+  button.setAttribute("aria-pressed", String(active));
+});
+
 let preferredTheme = "dark";
 try {
   const savedTheme = localStorage.getItem("weather-theme");
   preferredTheme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "dark";
 } catch {}
 setTheme(preferredTheme);
+const privacyNote = $("#privacy-note");
+try {
+  if (localStorage.getItem("weather-privacy-accepted") !== "true") privacyNote.hidden = false;
+} catch {
+  privacyNote.hidden = false;
+}
+$("#accept-privacy").addEventListener("click", () => {
+  try { localStorage.setItem("weather-privacy-accepted", "true"); } catch {}
+  privacyNote.hidden = true;
+});
+$("#clear-settings").addEventListener("click", () => {
+  try {
+    localStorage.removeItem("weather-location");
+    localStorage.removeItem("weather-theme");
+    localStorage.removeItem("weather-unit");
+  } catch {}
+  setTheme("dark");
+  unit = "celsius";
+  document.querySelectorAll("[data-unit]").forEach((button) => {
+    const active = button.dataset.unit === "celsius";
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  privacyNote.hidden = true;
+  searchCity("Glasgow").catch((error) => { $("#status").textContent = error.message; });
+});
+
 themeToggle.addEventListener("click", () => {
   setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark", true);
 });
@@ -319,6 +358,7 @@ $("#extend-forecast").addEventListener("click", () => {
 
 document.querySelectorAll("[data-unit]").forEach((button) => button.addEventListener("click", () => {
   unit = button.dataset.unit;
+  try { localStorage.setItem("weather-unit", unit); } catch {}
   document.querySelectorAll("[data-unit]").forEach((other) => {
     const active = other === button;
     other.classList.toggle("active", active);
