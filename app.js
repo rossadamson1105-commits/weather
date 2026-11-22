@@ -84,6 +84,7 @@ try {
 setTheme(preferredTheme);
 const privacyNote = $("#privacy-note");
 const footerAccept = $("#footer-accept");
+const footerClearLocation = $("#footer-clear-location");
 const footerDecline = $("#footer-decline");
 document.body.classList.toggle("consent-open", privacyNote.hidden === false);
 try {
@@ -93,6 +94,7 @@ try {
   if (needsChoice) privacyNote.hidden = false;
   const acceptedWithData = Boolean(consentChoice && savedLocation);
   footerAccept.hidden = acceptedWithData;
+  footerClearLocation.hidden = !acceptedWithData;
   footerDecline.hidden = !acceptedWithData;
 } catch {
   privacyNote.hidden = false;
@@ -113,6 +115,7 @@ $("#accept-privacy").addEventListener("click", () => {
   }
   privacyNote.hidden = true;
   footerAccept.hidden = true;
+  footerClearLocation.hidden = false;
   footerDecline.hidden = false;
   document.body.classList.remove("consent-open");
 });
@@ -125,6 +128,7 @@ $("#decline-privacy").addEventListener("click", () => {
   } catch {}
   privacyNote.hidden = true;
   footerAccept.hidden = false;
+  footerClearLocation.hidden = true;
   footerDecline.hidden = true;
   document.body.classList.remove("consent-open");
 });
@@ -135,6 +139,7 @@ $("#footer-accept").addEventListener("click", () => {
   } catch {}
   if (forecastData) saveLocation(forecastData.weather.latitude, forecastData.weather.longitude, forecastData.location, forecastData.requestedDays || 7);
   footerAccept.hidden = true;
+  footerClearLocation.hidden = false;
   footerDecline.hidden = false;
 });
 
@@ -146,6 +151,21 @@ $("#footer-decline").addEventListener("click", () => {
     localStorage.removeItem("weather-unit");
   } catch {}
   footerAccept.hidden = false;
+  footerClearLocation.hidden = true;
+  footerDecline.hidden = true;
+  privacyNote.hidden = true;
+  document.body.classList.remove("consent-open");
+});
+
+$("#footer-clear-location").addEventListener("click", () => {
+  try {
+    localStorage.removeItem("weather-location");
+    localStorage.removeItem("weather-theme");
+    localStorage.removeItem("weather-unit");
+    localStorage.removeItem("weather-privacy-accepted");
+  } catch {}
+  footerAccept.hidden = false;
+  footerClearLocation.hidden = true;
   footerDecline.hidden = true;
   privacyNote.hidden = false;
   document.body.classList.add("consent-open");
