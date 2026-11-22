@@ -20,7 +20,10 @@ let forecastData;
 let locationLabel = "Glasgow, Scotland, GB";
 
 function savingAllowed() {
-  try { return localStorage.getItem("weather-privacy-accepted") === "true"; } catch { return false; }
+  try {
+    return localStorage.getItem("weather-privacy-accepted") === "true"
+      && localStorage.getItem("weather-location") !== null;
+  } catch { return false; }
 }
 
 function saveLocation(latitude, longitude, location, forecastDays = 7) {
@@ -94,7 +97,6 @@ try {
 $("#accept-privacy").addEventListener("click", () => {
   try {
     localStorage.setItem("weather-privacy-accepted", "true");
-    localStorage.removeItem("weather-save-disabled");
     localStorage.setItem("weather-theme", document.documentElement.dataset.theme === "light" ? "light" : "dark");
     localStorage.setItem("weather-unit", unit);
   } catch {}
@@ -113,7 +115,6 @@ $("#accept-privacy").addEventListener("click", () => {
 $("#decline-privacy").addEventListener("click", () => {
   try {
     localStorage.removeItem("weather-privacy-accepted");
-    localStorage.removeItem("weather-save-disabled");
     localStorage.removeItem("weather-location");
     localStorage.removeItem("weather-theme");
     localStorage.removeItem("weather-unit");
@@ -129,7 +130,6 @@ $("#footer-clear-settings").addEventListener("click", () => {
     localStorage.removeItem("weather-theme");
     localStorage.removeItem("weather-unit");
     localStorage.removeItem("weather-privacy-accepted");
-    localStorage.removeItem("weather-save-disabled");
   } catch {}
   footerAccept.hidden = false;
   privacyNote.hidden = false;
@@ -139,7 +139,6 @@ $("#footer-clear-settings").addEventListener("click", () => {
 $("#footer-accept").addEventListener("click", () => {
   try {
     localStorage.setItem("weather-privacy-accepted", "true");
-    localStorage.removeItem("weather-save-disabled");
   } catch {}
   if (forecastData) saveLocation(forecastData.weather.latitude, forecastData.weather.longitude, forecastData.location, forecastData.requestedDays || 7);
   footerAccept.hidden = true;
