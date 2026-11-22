@@ -6,7 +6,7 @@ const codeInfo = {
   77: ["Snow grains", "❄"], 80: ["Showers", "☂"], 81: ["Showers", "☂"], 82: ["Heavy showers", "☂"], 85: ["Snow showers", "❄"],
   86: ["Snow showers", "❄"], 95: ["Thunderstorm", "ϟ"], 96: ["Thunderstorm", "ϟ"], 99: ["Thunderstorm", "ϟ"],
 };
-const rainCodes = new Set([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99]);
+
 const sources = [
   { name: "ECMWF IFS", provider: "European Centre", model: "ecmwf_ifs025" },
   { name: "UK Met Office", provider: "United Kingdom", model: "ukmo_global_deterministic_10km" },
@@ -35,43 +35,19 @@ function setTheme(theme, save = false) {
   $("#theme-label").textContent = isDark ? "Light" : "Dark";
   $("meta[name='theme-color']").content = isDark ? "#151d19" : "#f4f4ef";
   if (save) {
-    try { localStorage.setItem("weather-jacket-theme", isDark ? "dark" : "light"); } catch {}
+    try { localStorage.setItem("weather-theme", isDark ? "dark" : "light"); } catch {}
   }
 }
 
 let preferredTheme = "light";
 try {
-  const savedTheme = localStorage.getItem("weather-jacket-theme");
+  const savedTheme = localStorage.getItem("weather-theme");
   preferredTheme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 } catch {}
 setTheme(preferredTheme);
 themeToggle.addEventListener("click", () => {
   setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark", true);
 });
-
-function jacketAdvice(feelsLike, code, wind, rainChance) {
-  const wet = rainCodes.has(code) || rainChance >= 40;
-  let title = "Light jacket";
-  let reason = "A handy layer for cooler air and the walk home.";
-  if (feelsLike >= 75) [title, reason] = ["No jacket needed", "A light layer is enough for cooler indoor spaces."];
-  else if (feelsLike >= 64) [title, reason] = ["Light windbreaker", "A breathable shell will take the edge off the breeze."];
-  else if (feelsLike >= 52) [title, reason] = ["Light jacket", "An easy layer for Glasgow's changeable air."];
-  else if (feelsLike >= 40) [title, reason] = ["Warm everyday coat", "Choose a lined layer to keep the chill off."];
-  else [title, reason] = ["Insulated winter coat", "Bundle up with a warm layer underneath."];
-  const tags = [];
-  if (wet) {
-    title = feelsLike < 40 ? "Waterproof winter coat" : "Waterproof jacket";
-    reason = "Rain is likely. Choose a water-resistant layer with a hood.";
-    tags.push("RAIN READY");
-  }
-  if (wind >= 18) {
-    reason = wet ? "Rain and strong wind call for a snug waterproof shell." : "Strong wind will cut through light layers; choose a windproof coat.";
-    tags.push("WINDPROOF");
-  }
-  if (code >= 71 && code <= 86) tags.push("SNOW READY");
-  if (!tags.length) tags.push(feelsLike < 52 ? "WARM LAYER" : "EASY LAYER");
-  return { title, reason, tags };
-}
 
 function renderSources(results) {
   const list = $("#source-list");
@@ -114,7 +90,6 @@ function renderForecast(data) {
   const hourly = data.weather.hourly;
   const rainChance = Math.max(...hourly.precipitation_probability.slice(0, 6));
   const [description, symbol] = weatherCode(current.weather_code);
-  const recommendation = jacketAdvice(current.apparent_temperature, current.weather_code, current.wind_speed_10m, rainChance);
 
   $("#city-name").textContent = data.location;
   $("#description").textContent = description;
@@ -126,14 +101,6 @@ function renderForecast(data) {
   $("#wind").textContent = `${Math.round(current.wind_speed_10m)} mph`;
   $("#rain").textContent = `${rainChance}%`;
   $("#humidity").textContent = `${current.relative_humidity_2m}%`;
-  $("#jacket-title").textContent = recommendation.title;
-  $("#jacket-reason").textContent = recommendation.reason;
-  $("#jacket-tags").replaceChildren(...recommendation.tags.map((tag) => {
-    const chip = document.createElement("span");
-    chip.className = "tag";
-    chip.textContent = tag;
-    return chip;
-  }));
 
   const times = hourly.time.map((time, index) => ({ time, index })).filter(({ time }) => time >= current.time).slice(0, 6);
   $("#hourly").replaceChildren(...times.map(({ time, index }, position) => {
@@ -152,11 +119,9 @@ function renderForecast(data) {
     const label = index === 0 ? "Today" : index === 1 ? "Tomorrow" : weekday;
     const [condition, icon] = weatherCode(daily.weather_code[index]);
     const rain = daily.precipitation_probability_max[index] ?? 0;
-    const wind = daily.wind_speed_10m_max[index] ?? current.wind_speed_10m;
-    const advice = jacketAdvice(daily.temperature_2m_min[index], daily.weather_code[index], wind, rain);
     const row = document.createElement("article");
     row.className = "day-row";
-    row.innerHTML = `<div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div><div class="day-jacket"><span class="jacket-mark" aria-hidden="true">🧥</span><span class="day-jacket-copy"><strong>${advice.title}</strong><small>${advice.reason}</small></span></div>`;
+    row.innerHTML = `<div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div>`;
     return row;
   }));
   $("#date-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", timeZone: data.weather.timezone }).format(new Date(current.time));

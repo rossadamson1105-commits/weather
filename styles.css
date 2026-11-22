@@ -17,9 +17,7 @@
   --canvas-end: #eeefe8;
   --soft: #f0f1e9;
   --control: #e9eadf;
-  --jacket-surface: #e3e7d9;
-  --jacket-text: #626b5d;
-  --jacket-label: #4a654c;
+
   --edge: #242a251f;
   --status-error: #9c4c34;
 }
@@ -37,9 +35,7 @@
   --canvas-end: #1a251e;
   --soft: #26332b;
   --control: #26332b;
-  --jacket-surface: #29372e;
-  --jacket-text: #c1ccc1;
-  --jacket-label: #b7d2a3;
+
   --edge: #d4dfd21f;
   --status-error: #efad96;
 }
@@ -72,8 +68,9 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .search button { min-width: 38px; height: 33px; border: 0; border-radius: 5px; background: var(--green); color: white; font-size: 12px; font-weight: 700; }
 .search button:hover, .locate:hover { opacity: .76; }
 .status { min-height: 20px; margin: -8px 0 13px; color: var(--status-error); font-size: 13px; }
-.top-grid, .lower-grid { display: grid; grid-template-columns: 1.07fr .93fr; gap: 15px; animation: appear .4s ease-out both; }
-.weather-panel, .jacket-panel { min-height: 270px; position: relative; overflow: hidden; border-radius: 8px; }
+.top-grid { display: grid; grid-template-columns: 1fr; gap: 15px; animation: appear .4s ease-out both; }
+.lower-grid { display: grid; grid-template-columns: 1.07fr .93fr; gap: 15px; animation: appear .4s ease-out both; }
+.weather-panel { min-height: 270px; position: relative; overflow: hidden; border-radius: 8px; }
 .weather-panel { display: flex; flex-direction: column; justify-content: space-between; padding: 25px 28px 18px; background: var(--green); color: #f9f9ee; }
 .weather-heading { position: relative; z-index: 1; display: flex; justify-content: space-between; }
 .light { color: #d2decf; }
@@ -86,15 +83,6 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .temp-meta strong { color: white; font-weight: 600; }
 .weather-note { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 12px; margin: 0; padding-top: 12px; border-top: 1px solid #ffffff35; color: #e1e8df; font-size: 10px; }
 .weather-note span { color: #c1d0c3; font-size: 9px; letter-spacing: .7px; }
-.jacket-panel { display: flex; align-items: center; justify-content: space-between; padding: 25px 22px 18px 27px; background: var(--jacket-surface); }
-.jacket-copy { position: relative; z-index: 1; max-width: 58%; }
-.jacket-panel .eyebrow { color: var(--muted); }
-.pick-label { margin: 24px 0 6px; color: var(--jacket-label); font-size: 9px; font-weight: 700; letter-spacing: 1px; }
-.jacket-panel h2 { margin: 0 0 8px; font: 500 clamp(23px, 2.7vw, 31px)/1.1 "Fraunces", Georgia, serif; }
-.jacket-reason { max-width: 240px; margin: 0; color: var(--jacket-text); font-size: 11px; line-height: 1.5; }
-.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 15px; }
-.tag { padding: 6px 7px; border: 1px solid var(--line); border-radius: 4px; color: var(--jacket-label); font-size: 8px; font-weight: 700; }
-.jacket-panel img { width: 40%; max-width: 205px; height: 210px; align-self: end; object-fit: cover; object-position: 50% 35%; border-radius: 6px; }
 .lower-grid { grid-template-columns: 1.07fr .93fr; margin-top: 15px; }
 .panel { min-height: 188px; padding: 20px 22px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-bg); }
 .panel-heading { display: flex; align-items: start; justify-content: space-between; }
@@ -125,14 +113,14 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .source-value { color: var(--accent); font-size: 13px; font-weight: 700; white-space: nowrap; }
 .source-unavailable { color: var(--muted); font-size: 9px; white-space: nowrap; }
 .week-panel { margin-top: 15px; }
-.week-columns, .day-row { display: grid; grid-template-columns: minmax(100px, .75fr) minmax(145px, 1.1fr) minmax(105px, .7fr) minmax(72px, .5fr) minmax(245px, 1.7fr); align-items: center; column-gap: 16px; }
+.week-columns, .day-row { display: grid; grid-template-columns: minmax(100px, .75fr) minmax(145px, 1.1fr) minmax(105px, .7fr) minmax(72px, .5fr); align-items: center; column-gap: 16px; }
 .week-columns { margin-top: 23px; padding: 0 13px 9px; color: #81877b; font-size: 8px; font-weight: 700; letter-spacing: .8px; }
 .week-list { border-top: 1px solid var(--line); }
 .day-row { min-height: 66px; padding: 10px 13px; border-bottom: 1px solid var(--line); }
 .day-row:last-child { border-bottom: 0; }
-.day-date, .day-jacket-copy { min-width: 0; display: grid; gap: 3px; }
+.day-date { min-width: 0; display: grid; gap: 3px; }
 .day-date strong { color: var(--ink); font-size: 12px; font-weight: 700; }
-.day-date small, .day-jacket-copy small { color: var(--muted); font-size: 9px; line-height: 1.4; }
+.day-date small { color: var(--muted); font-size: 9px; line-height: 1.4; }
 .day-condition { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
 .day-icon { width: 23px; color: var(--accent); font-size: 18px; text-align: center; }
 .day-temperature { display: flex; align-items: baseline; gap: 8px; }
@@ -140,9 +128,6 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .day-temperature span { color: var(--muted); font-size: 10px; }
 .day-rain { display: flex; align-items: center; gap: 6px; color: var(--accent); font-size: 11px; }
 .day-rain span { font-size: 13px; }
-.day-jacket { min-width: 0; display: flex; align-items: center; gap: 9px; }
-.jacket-mark { width: 26px; height: 26px; flex: 0 0 26px; display: grid; place-items: center; border-radius: 50%; background: var(--soft); color: var(--accent); font-size: 14px; }
-.day-jacket-copy strong { color: var(--ink); font-size: 10px; font-weight: 700; }
 .attribution { margin: 12px 0 0; color: var(--muted); font-size: 9px; }
 .attribution a { color: inherit; }
 footer { min-height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 max(5vw, 22px); border-top: 1px solid var(--edge); color: var(--muted); font-size: 10px; }
@@ -156,8 +141,6 @@ footer span:first-child { color: var(--ink); font-weight: 700; }
   .search { width: 100%; }
   .top-grid, .lower-grid { grid-template-columns: 1fr; }
   .weather-panel { min-height: 275px; }
-  .jacket-panel { min-height: 255px; }
-  .jacket-panel img { height: 205px; }
   .source-list { grid-template-columns: 1fr 1fr; }
   .week-columns { display: none; }
   .day-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 13px 5px; }
@@ -165,8 +148,6 @@ footer span:first-child { color: var(--ink); font-weight: 700; }
   .day-condition { grid-column: 1; grid-row: 2; }
   .day-temperature { grid-column: 2; grid-row: 1; justify-self: end; }
   .day-rain { grid-column: 2; grid-row: 2; justify-self: end; }
-  .day-jacket { grid-column: 1 / -1; padding-top: 3px; }
-  .day-jacket-copy small { font-size: 9px; }
   .lower-grid { gap: 12px; }
 }
 @media (max-width: 420px) {
@@ -178,9 +159,6 @@ footer span:first-child { color: var(--ink); font-weight: 700; }
   .unit { width: 30px; }
   .temperature { font-size: 70px; }
   .weather-panel { padding: 22px 19px 16px; }
-  .jacket-panel { padding: 21px 14px 16px 18px; }
-  .jacket-copy { max-width: 60%; }
-  .jacket-panel img { width: 37%; height: 190px; }
   .panel { padding: 18px 14px; }
   .conditions { gap: 5px; }
   .conditions div { grid-template-columns: 17px 1fr; gap: 5px 2px; padding: 9px 5px; }

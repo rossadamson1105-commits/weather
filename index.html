@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f4f4ef" />
-    <meta name="description" content="Glasgow weather and a jacket recommendation for the day." />
-    <title>Weather Jacket | Glasgow</title>
+  <meta name="description" content="Glasgow weather and seven-day forecast." />
+  <title>Weather | Glasgow</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
@@ -14,7 +14,7 @@
   </head>
   <body>
     <header class="topbar">
-      <a class="wordmark" href="./"><span class="brand-mark" aria-hidden="true">W</span>weather jacket</a>
+      <a class="wordmark" href="./"><span class="brand-mark" aria-hidden="true">W</span>weather</a>
       <div class="tools">
         <div class="unit-switch" role="group" aria-label="Temperature units">
           <button class="unit" data-unit="fahrenheit" aria-pressed="false" type="button">°F</button>
@@ -28,8 +28,8 @@
     <main class="shell">
       <section class="intro">
         <div>
-          <p class="eyebrow">A forecast you can wear</p>
-          <h1>Dress for the day.</h1>
+          <p class="eyebrow">A forecast for your day</p>
+          <h1>Know the weather.</h1>
         </div>
         <form class="search" id="search-form" role="search">
           <label class="visually-hidden" for="city-input">Search for a city</label>
@@ -42,7 +42,7 @@
       <p class="status" id="status" role="status" aria-live="polite">Getting Glasgow's forecast...</p>
 
       <div class="dashboard" id="dashboard" hidden>
-        <section class="top-grid" aria-label="Current weather and jacket recommendation">
+        <section class="top-grid" aria-label="Current weather">
           <article class="weather-panel">
             <div class="weather-heading">
               <div><p class="eyebrow light" id="date-label">TODAY</p><h2 id="city-name">Glasgow, Scotland</h2><p id="description">Loading weather...</p></div>
@@ -55,27 +55,17 @@
             <p class="weather-note">A good day to get outside. <span>LOCAL FORECAST</span></p>
           </article>
 
-          <article class="jacket-panel">
-            <div class="jacket-copy">
-              <p class="eyebrow">Your outer layer</p>
-              <p class="pick-label">TODAY'S PICK</p>
-              <h2 id="jacket-title">Light jacket</h2>
-              <p class="jacket-reason" id="jacket-reason">Just right for the day.</p>
-              <div class="tags" id="jacket-tags"></div>
-            </div>
-            <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=720&q=85" alt="A neutral-toned jacket" />
-          </article>
         </section>
 
         <section class="panel week-panel" aria-label="Seven day forecast">
           <div class="panel-heading"><div><p class="eyebrow">The week ahead</p><h2>7-day forecast</h2></div><span class="small-label">DAILY OUTLOOK</span></div>
-          <div class="week-columns" aria-hidden="true"><span>DAY</span><span>FORECAST</span><span>TEMPERATURE</span><span>RAIN</span><span>WHAT TO WEAR</span></div>
+          <div class="week-columns" aria-hidden="true"><span>DAY</span><span>FORECAST</span><span>TEMPERATURE</span><span>RAIN</span></div>
           <div class="week-list" id="week-forecast"></div>
         </section>
 
         <section class="lower-grid" aria-label="Forecast details">
           <article class="panel hourly-panel">
-            <div class="panel-heading"><div><p class="eyebrow">Plan your layers</p><h2>Coming up</h2></div><span class="small-label">NEXT 6 HOURS</span></div>
+            <div class="panel-heading"><div><p class="eyebrow">Plan your day</p><h2>Coming up</h2></div><span class="small-label">NEXT 6 HOURS</span></div>
             <div class="hourly" id="hourly"></div>
           </article>
           <article class="panel conditions-panel">
@@ -94,6 +84,6 @@
         <p class="attribution">Weather data via <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a>.</p>
       </div>
     </main>
-    <footer><span>Weather Jacket</span><span>Good layers, better days.</span></footer>
+    <footer><span>Weather</span><span>Plan better days.</span></footer>
   </body>
 </html>
