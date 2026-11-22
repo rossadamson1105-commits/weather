@@ -68,19 +68,39 @@ async function loadSources(latitude, longitude) {
   const results = await Promise.all(sources.map(async (source) => {
     try {
       const params = new URLSearchParams({
-        latitude, longitude, hourly: "temperature_2m", forecast_hours: "2", temperature_unit: "fahrenheit",
+        latitude, longitude,
+        hourly: "temperature_2m,wind_speed_10m,relative_humidity_2m,precipitation_probability",
+        forecast_hours: "2", temperature_unit: "fahrenheit", wind_speed_unit: "mph",
         timezone: "auto", models: source.model,
       });
       const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
       if (!response.ok) throw new Error("Unavailable");
       const data = await response.json();
-      const temperatures = data.hourly.temperature_2m;
-      return { source, temperature: temperatures[0] };
+      return {
+        source,
+        temperature: data.hourly.temperature_2m?.[0],
+        wind: data.hourly.wind_speed_10m?.[0],
+        humidity: data.hourly.relative_humidity_2m?.[0],
+        rain: data.hourly.precipitation_probability?.[0],
+      };
     } catch {
       return { source, error: true };
     }
   }));
   renderSources(results);
+
+  const average = (key) => {
+    const values = results.map((result) => result[key]).filter((value) => Number.isFinite(value));
+    return values.length ? values.reduce((total, value) => total + value, 0) / values.length : null;
+  };
+  const averageTemperature = average("temperature");
+  const averageWind = average("wind");
+  const averageHumidity = average("humidity");
+  const averageRain = average("rain");
+  if (Number.isFinite(averageTemperature)) $("#temperature").textContent = displayTemp(averageTemperature);
+  if (Number.isFinite(averageWind)) $("#wind").textContent = `${Math.round(averageWind)} mph avg`;
+  if (Number.isFinite(averageHumidity)) $("#humidity").textContent = `${Math.round(averageHumidity)}%`;
+  if (Number.isFinite(averageRain)) $("#rain").textContent = `${Math.round(averageRain)}%`;
 }
 
 function renderForecast(data) {
@@ -134,7 +154,7 @@ function renderForecast(data) {
       const timestamp = new Date(time);
       return `<th scope="col">${new Intl.DateTimeFormat(undefined, { hour: "numeric", timeZone: data.weather.timezone }).format(timestamp)}</th>`;
     }).join("");
-    const outlookRow = (icon, values) => `<tr><th scope="row"><b aria-hidden="true">${icon}</b></th>${values}</tr>`;
+    const outlookRow = (icon, label, values) => `<tr><th scope="row" title="${label}"><b class="outlook-row-icon outlook-${label.toLowerCase()}" aria-label="${label}" aria-hidden="true">${icon}</b></th>${values}</tr>`;
     const temperatureCells = periods.map(({ periodIndex }) => {
       const periodIcon = weatherCode(hourly.weather_code[periodIndex])[1];
       const temperature = displayTemp(hourly.temperature_2m[periodIndex]);
@@ -155,9 +175,9 @@ function renderForecast(data) {
     }).join("");
     const humidityCells = periods.map(({ periodIndex }) => {
       const humidity = hourly.relative_humidity_2m[periodIndex] ?? 0;
-      return `<td title="Humidity: ${humidity}%"><span class="stat-icon humidity-icon" aria-label="Humidity ${humidity}%">●</span><strong class="humidity-value">${humidity}%</strong></td>`;
+      return `<td title="Humidity: ${humidity}%"><span class="stat-icon humidity-icon" aria-label="Humidity ${humidity}%">≋</span><strong class="humidity-value">${humidity}%</strong></td>`;
     }).join("");
-    const outlook = `<table class="outlook-table"><thead><tr><th scope="col" class="outlook-stat-head">Time</th>${timeHeaders}</tr></thead><tbody>${outlookRow("°", temperatureCells)}${outlookRow("↗", windCells)}${outlookRow("☂", rainCells)}${outlookRow("●", humidityCells)}</tbody></table>`;
+    const outlook = `<table class="outlook-table"><thead><tr><th scope="col" class="outlook-stat-head">Time</th>${timeHeaders}</tr></thead><tbody>${outlookRow("°", "Temperature", temperatureCells)}${outlookRow("↗", "Wind", windCells)}${outlookRow("☂", "Precipitation", rainCells)}${outlookRow("≋", "Humidity", humidityCells)}</tbody></table>`;
     const open = index === 0 ? " open" : "";
     const row = document.createElement("article");
     row.className = "day-row";

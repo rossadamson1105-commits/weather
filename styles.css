@@ -156,6 +156,13 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .rain-icon { color: var(--rain); }
 .rain-value { display: block; margin-top: 2px; color: var(--rain); font-size: 9px; }
 .humidity-icon { color: var(--humidity); font-size: 11px; }
+.outlook-row-icon { position: relative; display: inline-grid; place-items: center; cursor: help; }
+.outlook-row-icon::after { content: attr(aria-label); position: absolute; z-index: 5; left: calc(100% + 7px); top: 50%; transform: translateY(-50%); width: max-content; padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; background: #000; color: #fff; font-size: 8px; opacity: 0; pointer-events: none; }
+.outlook-row-icon:hover::after, .outlook-row-icon:focus::after { opacity: 1; }
+.outlook-temperature { color: var(--lime); }
+.outlook-wind { color: var(--lime); }
+.outlook-precipitation { color: var(--rain); }
+.outlook-humidity { color: var(--humidity); }
 .humidity-value { display: block; margin-top: 2px; color: var(--humidity); font-size: 9px; }
 .week-panel, .panel, .source-details, .outlook-table { background: #111; }
 .weather-panel { background: #000; border: 1px solid var(--line); }
