@@ -20,7 +20,7 @@ let forecastData;
 let locationLabel = "Glasgow, Scotland, GB";
 
 function savingAllowed() {
-  try { return localStorage.getItem("weather-save-disabled") !== "true"; } catch { return false; }
+  try { return localStorage.getItem("weather-privacy-accepted") === "true"; } catch { return false; }
 }
 
 function saveLocation(latitude, longitude, location, forecastDays = 7) {
