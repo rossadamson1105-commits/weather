@@ -102,14 +102,20 @@ function renderForecast(data) {
   $("#rain").textContent = `${rainChance}%`;
   $("#humidity").textContent = `${current.relative_humidity_2m}%`;
 
-  const times = hourly.time.map((time, index) => ({ time, index })).filter(({ time }) => time >= current.time).slice(0, 6);
+  const startIndex = hourly.time.findIndex((time) => time >= current.time);
+  const times = hourly.time.map((time, index) => ({ time, index }))
+    .filter(({ index }) => index >= startIndex && (index - startIndex) % 3 === 0)
+    .slice(0, 8);
   $("#hourly").replaceChildren(...times.map(({ time, index }, position) => {
     const hour = document.createElement("div");
     hour.className = "hour";
     const timestamp = new Date(time);
     const label = position === 0 ? "Now" : new Intl.DateTimeFormat(undefined, { hour: "numeric", timeZone: data.weather.timezone }).format(timestamp);
     const icon = weatherCode(hourly.weather_code[index])[1];
-    hour.innerHTML = `<span>${label}</span><b aria-hidden="true">${icon}</b><strong>${displayTemp(hourly.temperature_2m[index])}</strong>`;
+    const rain = hourly.precipitation_probability[index] ?? 0;
+    const wind = Math.round(hourly.wind_speed_10m[index] ?? 0);
+    const humidity = hourly.relative_humidity_2m[index] ?? 0;
+    hour.innerHTML = `<span>${label}</span><b aria-hidden="true">${icon}</b><strong>${displayTemp(hourly.temperature_2m[index])}</strong><small>☂ ${rain}% · ↗ ${wind} mph · ◌ ${humidity}%</small>`;
     return hour;
   }));
   $("#week-forecast").replaceChildren(...daily.time.map((date, index) => {
@@ -119,9 +125,22 @@ function renderForecast(data) {
     const label = index === 0 ? "Today" : index === 1 ? "Tomorrow" : weekday;
     const [condition, icon] = weatherCode(daily.weather_code[index]);
     const rain = daily.precipitation_probability_max[index] ?? 0;
+    const periods = hourly.time.map((time, periodIndex) => ({ time, periodIndex }))
+      .filter(({ time }) => time.startsWith(date))
+      .filter(({ time }) => Number(time.slice(11, 13)) % 3 === 0)
+      .slice(0, 8);
+    const outlook = periods.map(({ time, periodIndex }) => {
+      const timestamp = new Date(time);
+      const periodLabel = new Intl.DateTimeFormat(undefined, { hour: "numeric", timeZone: data.weather.timezone }).format(timestamp);
+      const periodIcon = weatherCode(hourly.weather_code[periodIndex])[1];
+      const periodRain = hourly.precipitation_probability[periodIndex] ?? 0;
+      const periodWind = Math.round(hourly.wind_speed_10m[periodIndex] ?? 0);
+      const periodHumidity = hourly.relative_humidity_2m[periodIndex] ?? 0;
+      return `<div class="period"><small>${periodLabel}</small><b aria-hidden="true">${periodIcon}</b><strong>${displayTemp(hourly.temperature_2m[periodIndex])}</strong><span>☂ ${periodRain}%</span><span>↗ ${periodWind} mph</span><span>◌ ${periodHumidity}%</span></div>`;
+    }).join("");
     const row = document.createElement("article");
     row.className = "day-row";
-    row.innerHTML = `<div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div>`;
+    row.innerHTML = `<div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div><div class="day-outlook"><div class="outlook-heading"><strong>3-hour conditions</strong><small>24 hours</small></div><div class="outlook-grid">${outlook}</div></div>`;
     return row;
   }));
   $("#date-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", timeZone: data.weather.timezone }).format(new Date(current.time));
@@ -136,7 +155,7 @@ async function loadWeather(latitude, longitude, location) {
   const params = new URLSearchParams({
     latitude, longitude,
     current: "temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m",
-    hourly: "temperature_2m,precipitation_probability,weather_code",
+    hourly: "temperature_2m,precipitation_probability,weather_code,relative_humidity_2m,wind_speed_10m",
     daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max",
     temperature_unit: "fahrenheit", wind_speed_unit: "mph", timezone: "auto", forecast_days: "7",
   });

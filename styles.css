@@ -89,10 +89,11 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .panel-heading .eyebrow { margin-bottom: 5px; }
 .panel-heading h2 { margin: 0; font: 500 20px "Fraunces", Georgia, serif; }
 .small-label { margin-top: 3px; color: var(--muted); font-size: 8px; font-weight: 700; letter-spacing: .8px; white-space: nowrap; }
-.hourly { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; margin-top: 20px; }
-.hour { min-width: 0; display: grid; justify-items: center; gap: 7px; color: var(--muted); font-size: 9px; }
+.hourly { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; margin-top: 20px; }
+.hour { min-width: 0; display: grid; justify-items: center; gap: 5px; color: var(--muted); font-size: 9px; }
 .hour b { color: var(--accent); font-size: 17px; font-weight: 400; }
 .hour strong { color: var(--ink); font-size: 11px; font-weight: 600; }
+.hour small { max-width: 72px; color: var(--muted); font-size: 8px; line-height: 1.35; text-align: center; }
 .sun-mark { color: #bd8e42; font-size: 23px; }
 .conditions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 19px; }
 .conditions div { min-width: 0; display: grid; grid-template-columns: 20px 1fr; align-items: center; gap: 5px 3px; padding: 11px 7px; border-radius: 5px; background: var(--soft); }
@@ -105,7 +106,7 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .source-details summary::after { content: "+"; color: var(--accent); font-size: 16px; font-weight: 400; }
 .source-details[open] summary::after { content: "−"; }
 .source-details summary small { margin-left: auto; color: var(--muted); font-size: 9px; font-weight: 500; }
-.source-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding-bottom: 14px; }
+.source-list { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding-bottom: 14px; }
 .source-row { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px; border-radius: 5px; background: var(--soft); }
 .source-row > span:first-child { min-width: 0; display: grid; gap: 3px; }
 .source-row strong { overflow: hidden; color: var(--ink); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
@@ -128,6 +129,20 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .day-temperature span { color: var(--muted); font-size: 10px; }
 .day-rain { display: flex; align-items: center; gap: 6px; color: var(--accent); font-size: 11px; }
 .day-rain span { font-size: 13px; }
+.day-row { min-height: 82px; }
+.day-outlook { grid-column: 1 / -1; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+.day-outlook > .outlook-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 7px; }
+.day-outlook > .outlook-heading strong { color: var(--ink); font-size: 9px; }
+.day-outlook > .outlook-heading small { color: var(--muted); font-size: 8px; }
+.outlook-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 6px; background: var(--soft); }
+.period { min-width: 0; min-height: 92px; display: grid; justify-items: center; align-content: start; gap: 3px; padding: 9px 6px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; }
+.period:nth-child(4n + 1) { border-left: 0; }
+.period:nth-last-child(-n + 4) { border-bottom: 0; }
+.period small { color: var(--muted); font-size: 8px; }
+.period b { color: var(--accent); font-size: 17px; font-weight: 400; }
+.period strong { color: var(--ink); font-size: 12px; }
+.period span { color: var(--muted); font-size: 8px; white-space: nowrap; }
+
 .attribution { margin: 12px 0 0; color: var(--muted); font-size: 9px; }
 .attribution a { color: inherit; }
 footer { min-height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 max(5vw, 22px); border-top: 1px solid var(--edge); color: var(--muted); font-size: 10px; }
@@ -148,6 +163,8 @@ footer span:first-child { color: var(--ink); font-weight: 700; }
   .day-condition { grid-column: 1; grid-row: 2; }
   .day-temperature { grid-column: 2; grid-row: 1; justify-self: end; }
   .day-rain { grid-column: 2; grid-row: 2; justify-self: end; }
+  .day-outlook { grid-column: 1 / -1; grid-row: 3; }
+  .outlook-grid { grid-template-columns: repeat(4, minmax(70px, 1fr)); }
   .lower-grid { gap: 12px; }
 }
 @media (max-width: 420px) {
@@ -164,7 +181,7 @@ footer span:first-child { color: var(--ink); font-weight: 700; }
   .conditions div { grid-template-columns: 17px 1fr; gap: 5px 2px; padding: 9px 5px; }
   .conditions small { font-size: 8px; }
   .conditions strong { font-size: 10px; }
-  .hourly { gap: 2px; }
+  .hourly { grid-template-columns: repeat(8, minmax(42px, 1fr)); gap: 2px; overflow-x: auto; }
   footer { padding-inline: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
