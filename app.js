@@ -86,6 +86,15 @@ const privacyNote = $("#privacy-note");
 const footerAccept = $("#footer-accept");
 const footerClearLocation = $("#footer-clear-location");
 const footerDecline = $("#footer-decline");
+
+function updateFooterConsent() {
+  const accepted = localStorage.getItem("weather-privacy-choice") === "yes"
+    && localStorage.getItem("weather-privacy-accepted") === "true"
+    && getSavedLocation();
+  footerAccept.hidden = Boolean(accepted);
+  footerClearLocation.hidden = !accepted;
+  footerDecline.hidden = !accepted;
+}
 document.body.classList.toggle("consent-open", privacyNote.hidden === false);
 try {
   const consentChoice = localStorage.getItem("weather-privacy-choice");
@@ -93,10 +102,7 @@ try {
   const savedLocation = getSavedLocation();
   const needsChoice = consentChoice !== "yes" && consentChoice !== "no";
   if (needsChoice) privacyNote.hidden = false;
-  const acceptedWithData = Boolean(accepted && savedLocation);
-  footerAccept.hidden = acceptedWithData;
-  footerClearLocation.hidden = !acceptedWithData;
-  footerDecline.hidden = !acceptedWithData;
+  updateFooterConsent();
 } catch {
   privacyNote.hidden = false;
 }
@@ -116,9 +122,7 @@ $("#accept-privacy").addEventListener("click", () => {
     );
   }
   privacyNote.hidden = true;
-  footerAccept.hidden = true;
-  footerClearLocation.hidden = false;
-  footerDecline.hidden = false;
+  updateFooterConsent();
   document.body.classList.remove("consent-open");
 });
 $("#decline-privacy").addEventListener("click", () => {
@@ -130,9 +134,7 @@ $("#decline-privacy").addEventListener("click", () => {
     localStorage.removeItem("weather-unit");
   } catch {}
   privacyNote.hidden = true;
-  footerAccept.hidden = false;
-  footerClearLocation.hidden = true;
-  footerDecline.hidden = true;
+  updateFooterConsent();
   document.body.classList.remove("consent-open");
 });
 
@@ -142,9 +144,7 @@ $("#footer-accept").addEventListener("click", () => {
     localStorage.setItem("weather-privacy-accepted", "true");
   } catch {}
   if (forecastData) saveLocation(forecastData.weather.latitude, forecastData.weather.longitude, forecastData.location, forecastData.requestedDays || 7);
-  footerAccept.hidden = true;
-  footerClearLocation.hidden = false;
-  footerDecline.hidden = false;
+  updateFooterConsent();
 });
 
 $("#footer-decline").addEventListener("click", () => {
@@ -155,9 +155,7 @@ $("#footer-decline").addEventListener("click", () => {
     localStorage.removeItem("weather-theme");
     localStorage.removeItem("weather-unit");
   } catch {}
-  footerAccept.hidden = false;
-  footerClearLocation.hidden = true;
-  footerDecline.hidden = true;
+  updateFooterConsent();
   privacyNote.hidden = true;
   document.body.classList.remove("consent-open");
 });
@@ -170,9 +168,7 @@ $("#footer-clear-location").addEventListener("click", () => {
     localStorage.removeItem("weather-privacy-accepted");
     localStorage.removeItem("weather-privacy-choice");
   } catch {}
-  footerAccept.hidden = false;
-  footerClearLocation.hidden = true;
-  footerDecline.hidden = true;
+  updateFooterConsent();
   privacyNote.hidden = false;
   document.body.classList.add("consent-open");
 });
