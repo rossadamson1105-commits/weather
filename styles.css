@@ -1,25 +1,29 @@
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   font-family: "DM Sans", sans-serif;
   color: var(--ink);
-  background: #000;
+  background: #f7f7f2;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --ink: #f7f7f7;
-  --muted: #b8b8b8;
-  --green: #000;
-  --accent: #fff;
-  --lime: #fff;
-  --paper: #111;
-  --panel-bg: #111;
-  --line: #4a4a4a;
-  --canvas: #000;
-  --canvas-end: #080808;
-  --soft: #151515;
-  --control: #111;
+  --ink: #171717;
+  --muted: #686868;
+  --green: #f7f7f2;
+  --accent: #171717;
+  --lime: #157d70;
+  --accent-alt: #157d70;
+  --rain: #326cc7;
+  --humidity: #7350a1;
+  --paper: #fff;
+  --panel-bg: #fff;
+  --line: #d7d7d0;
+  --canvas: #f7f7f2;
+  --canvas-end: #ededE6;
+  --soft: #efefe9;
+  --control: #ecece6;
+  --weather-panel: #202020;
 
-  --edge: #ffffff2a;
-  --status-error: #fff;
+  --edge: #00000024;
+  --status-error: #9b2d20;
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -38,6 +42,7 @@
   --canvas-end: #080808;
   --soft: #151515;
   --control: #111;
+  --weather-panel: #000;
 
   --edge: #ffffff2a;
   --status-error: #fff;
@@ -49,7 +54,7 @@ button { cursor: pointer; }
 button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .topbar { height: 72px; padding: 0 max(5vw, 22px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--edge); background: var(--canvas); }
 .wordmark { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-size: 15px; font-weight: 700; text-decoration: none; }
-.brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: white; font: 17px "Fraunces", Georgia, serif; }
+.brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--canvas); font: 17px "Fraunces", Georgia, serif; }
 .tools { display: flex; align-items: center; gap: 14px; }
 .unit-switch { display: flex; padding: 3px; border: 1px solid var(--line); border-radius: 7px; background: var(--control); }
 .unit { width: 35px; height: 28px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); font-size: 13px; }
@@ -69,7 +74,7 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .search > span { color: var(--muted); font-size: 23px; }
 .search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 13px; }
 .search input::placeholder { color: var(--muted); }
-.search button { min-width: 38px; height: 33px; border: 0; border-radius: 5px; background: var(--green); color: white; font-size: 12px; font-weight: 700; }
+.search button { min-width: 38px; height: 33px; border: 0; border-radius: 5px; background: var(--accent); color: var(--canvas); font-size: 12px; font-weight: 700; }
 .search button:hover, .locate:hover { opacity: .76; }
 .search-hint { margin: 7px 0 0; color: var(--muted); font-size: 9px; line-height: 1.4; }
 .search-hint span { color: var(--ink); }
@@ -167,8 +172,8 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .outlook-precipitation { color: var(--rain); }
 .outlook-humidity { color: var(--humidity); }
 .humidity-value { display: block; margin-top: 2px; color: var(--humidity); font-size: 9px; }
-.week-panel, .panel, .source-details, .outlook-table { background: #111; }
-.weather-panel { background: #000; border: 1px solid var(--line); }
+.week-panel, .panel, .source-details, .outlook-table { background: var(--panel-bg); }
+.weather-panel { background: var(--weather-panel); border: 1px solid var(--line); }
 
 .attribution { margin: 12px 0 0; color: var(--muted); font-size: 9px; }
 .attribution a { color: inherit; }
