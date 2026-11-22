@@ -97,11 +97,9 @@ function updateFooterConsent() {
 }
 document.body.classList.toggle("consent-open", privacyNote.hidden === false);
 try {
-  const consentChoice = localStorage.getItem("weather-privacy-choice");
-  const accepted = consentChoice === "yes" && localStorage.getItem("weather-privacy-accepted") === "true";
+  const accepted = localStorage.getItem("weather-privacy-choice") === "yes";
   const savedLocation = getSavedLocation();
-  const needsChoice = consentChoice !== "yes" && consentChoice !== "no";
-  if (needsChoice) privacyNote.hidden = false;
+  if (!accepted) privacyNote.hidden = false;
   updateFooterConsent();
 } catch {
   privacyNote.hidden = false;
@@ -127,7 +125,7 @@ $("#accept-privacy").addEventListener("click", () => {
 });
 $("#decline-privacy").addEventListener("click", () => {
   try {
-    localStorage.setItem("weather-privacy-choice", "no");
+    localStorage.removeItem("weather-privacy-choice");
     localStorage.removeItem("weather-privacy-accepted");
     localStorage.removeItem("weather-location");
     localStorage.removeItem("weather-theme");
@@ -149,7 +147,7 @@ $("#footer-accept").addEventListener("click", () => {
 
 $("#footer-decline").addEventListener("click", () => {
   try {
-    localStorage.setItem("weather-privacy-choice", "no");
+    localStorage.removeItem("weather-privacy-choice");
     localStorage.removeItem("weather-privacy-accepted");
     localStorage.removeItem("weather-location");
     localStorage.removeItem("weather-theme");
