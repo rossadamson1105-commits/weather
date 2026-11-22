@@ -153,22 +153,6 @@ function renderForecast(data) {
   $("#rain").textContent = `${rainChance}%`;
   $("#humidity").textContent = `${current.relative_humidity_2m}%`;
 
-  const startIndex = hourly.time.findIndex((time) => time >= current.time);
-  const times = hourly.time.map((time, index) => ({ time, index }))
-    .filter(({ index }) => index >= startIndex && (index - startIndex) % 3 === 0)
-    .slice(0, 8);
-  $("#hourly").replaceChildren(...times.map(({ time, index }, position) => {
-    const hour = document.createElement("div");
-    hour.className = "hour";
-    const timestamp = new Date(time);
-    const label = position === 0 ? "Now" : new Intl.DateTimeFormat(undefined, { hour: "numeric", timeZone: data.weather.timezone }).format(timestamp);
-    const icon = weatherCode(hourly.weather_code[index])[1];
-    const rain = hourly.precipitation_probability[index] ?? 0;
-    const wind = Math.round(hourly.wind_speed_10m[index] ?? 0);
-    const humidity = hourly.relative_humidity_2m[index] ?? 0;
-    hour.innerHTML = `<span>${label}</span><b aria-hidden="true">${icon}</b><strong>${displayTemp(hourly.temperature_2m[index])}</strong><small>☂ ${rain}% · ↗ ${wind} mph · ◌ ${humidity}%</small>`;
-    return hour;
-  }));
   $("#week-forecast").replaceChildren(...daily.time.map((date, index) => {
     const dateValue = new Date(`${date}T12:00:00Z`);
     const weekday = new Intl.DateTimeFormat(undefined, { weekday: "short", timeZone: "UTC" }).format(dateValue);

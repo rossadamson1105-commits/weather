@@ -87,17 +87,12 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .temp-meta b { color: var(--humidity); font-size: 12px; font-weight: 400; }
 .weather-note { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 12px; margin: 0; padding-top: 12px; border-top: 1px solid #ffffff35; color: #e1e8df; font-size: 10px; }
 .weather-note span { color: #c1d0c3; font-size: 9px; letter-spacing: .7px; }
-.lower-grid { grid-template-columns: 1.07fr .93fr; margin-top: 15px; }
+.lower-grid { grid-template-columns: 1fr; margin-top: 15px; }
 .panel { min-height: 188px; padding: 20px 22px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-bg); }
 .panel-heading { display: flex; align-items: start; justify-content: space-between; }
 .panel-heading .eyebrow { margin-bottom: 5px; }
 .panel-heading h2 { margin: 0; font: 500 20px "Fraunces", Georgia, serif; }
 .small-label { margin-top: 3px; color: var(--muted); font-size: 8px; font-weight: 700; letter-spacing: .8px; white-space: nowrap; }
-.hourly { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; margin-top: 20px; }
-.hour { min-width: 0; display: grid; justify-items: center; gap: 5px; color: var(--muted); font-size: 9px; }
-.hour b { color: var(--accent); font-size: 17px; font-weight: 400; }
-.hour strong { color: var(--ink); font-size: 11px; font-weight: 600; }
-.hour small { max-width: 72px; color: var(--muted); font-size: 8px; line-height: 1.35; text-align: center; }
 .sun-mark { color: var(--accent); font-size: 23px; }
 .conditions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 19px; }
 .conditions div { min-width: 0; display: grid; grid-template-columns: 20px 1fr; align-items: center; gap: 5px 3px; padding: 11px 7px; border-radius: 5px; background: var(--soft); }
@@ -211,7 +206,6 @@ footer span:first-child { color: var(--ink); font-weight: 700; }
   .conditions div { grid-template-columns: 17px 1fr; gap: 5px 2px; padding: 9px 5px; }
   .conditions small { font-size: 8px; }
   .conditions strong { font-size: 10px; }
-  .hourly { grid-template-columns: repeat(8, minmax(42px, 1fr)); gap: 2px; overflow-x: auto; }
   footer { padding-inline: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
