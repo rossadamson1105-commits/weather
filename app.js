@@ -13,6 +13,7 @@ const sources = [
   { name: "DWD ICON", provider: "Germany", model: "icon_seamless" },
   { name: "NOAA GFS", provider: "United States", model: "gfs_seamless" },
   { name: "Météo-France", provider: "France", model: "meteofrance_seamless" },
+  { name: "MET Norway", provider: "Norway", model: "metno_seamless" },
 ];
 let unit = "celsius";
 let forecastData;
