@@ -245,7 +245,8 @@ async function searchCity(city) {
   if (!result.results?.length) throw new Error(`Couldn't find "${city}". Try another city.`);
   const exactMatches = result.results.filter((place) => place.name.toLowerCase() === city.toLowerCase());
   const place = exactMatches.find((place) => place.country_code === "GB") || exactMatches[0] || result.results[0];
-  const location = [place.name, place.admin1, place.country_code].filter(Boolean).join(", ");
+  const townName = place.name || city;
+  const location = [townName, place.admin1, place.country_code].filter((value, index, values) => value && values.indexOf(value) === index).join(", ");
   await loadWeather(place.latitude, place.longitude, location);
 }
 
@@ -266,7 +267,7 @@ $("#locate").addEventListener("click", () => {
         const place = await reverseResponse.json();
         const town = place.locality || place.city || place.principalSubdivision;
         const region = place.principalSubdivision || place.region;
-        location = [town, region, place.countryCode].filter(Boolean).join(", ");
+        location = [town, region, place.countryCode].filter((value, index, values) => value && values.indexOf(value) === index).join(", ");
       }
     } catch {}
     loadWeather(coords.latitude, coords.longitude, location).catch((error) => { $("#status").hidden = false; $("#status").textContent = error.message; });
