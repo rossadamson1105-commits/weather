@@ -97,9 +97,18 @@ function updateFooterConsent() {
 }
 document.body.classList.toggle("consent-open", privacyNote.hidden === false);
 try {
-  const accepted = localStorage.getItem("weather-privacy-choice") === "yes";
+  const consentChoice = localStorage.getItem("weather-privacy-choice");
+  const acceptedFlag = localStorage.getItem("weather-privacy-accepted") === "true";
   const savedLocation = getSavedLocation();
-  if (!accepted) privacyNote.hidden = false;
+  const accepted = consentChoice === "yes" && acceptedFlag && savedLocation;
+  if (!accepted) {
+    localStorage.removeItem("weather-location");
+    localStorage.removeItem("weather-theme");
+    localStorage.removeItem("weather-unit");
+    localStorage.removeItem("weather-privacy-accepted");
+    localStorage.removeItem("weather-privacy-choice");
+    privacyNote.hidden = false;
+  }
   updateFooterConsent();
 } catch {
   privacyNote.hidden = false;
