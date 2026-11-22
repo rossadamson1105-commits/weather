@@ -130,18 +130,22 @@ function renderForecast(data) {
       .filter(({ time }) => Number(time.slice(11, 13)) % 3 === 0)
       .filter(({ time }) => new Date(time).getTime() >= new Date(current.time).getTime())
       .slice(0, 8);
-    const outlook = periods.map(({ time, periodIndex }) => {
+    const timeHeaders = periods.map(({ time }) => {
       const timestamp = new Date(time);
-      const periodLabel = new Intl.DateTimeFormat(undefined, { hour: "numeric", timeZone: data.weather.timezone }).format(timestamp);
-      const periodIcon = weatherCode(hourly.weather_code[periodIndex])[1];
-      const periodRain = hourly.precipitation_probability[periodIndex] ?? 0;
-      const periodWind = Math.round(hourly.wind_speed_10m[periodIndex] ?? 0);
-      const periodHumidity = hourly.relative_humidity_2m[periodIndex] ?? 0;
-      return `<div class="period"><small class="period-time">${periodLabel}</small><div class="period-temp"><b aria-hidden="true">${periodIcon}</b><strong>${displayTemp(hourly.temperature_2m[periodIndex])}</strong></div><div class="period-stat"><b aria-hidden="true">↗</b><strong>${periodWind}</strong></div><div class="period-stat"><b aria-hidden="true">☂</b><strong>${periodRain}%</strong></div><div class="period-stat"><b aria-hidden="true">◌</b><strong>${periodHumidity}%</strong></div></div>`;
+      return `<th scope="col">${new Intl.DateTimeFormat(undefined, { hour: "numeric", timeZone: data.weather.timezone }).format(timestamp)}</th>`;
     }).join("");
+    const outlookRow = (icon, values) => `<tr><th scope="row"><b aria-hidden="true">${icon}</b></th>${values}</tr>`;
+    const temperatureCells = periods.map(({ periodIndex }) => {
+      const periodIcon = weatherCode(hourly.weather_code[periodIndex])[1];
+      return `<td><span class="outlook-temp"><b aria-hidden="true">${periodIcon}</b><strong>${displayTemp(hourly.temperature_2m[periodIndex])}</strong></span></td>`;
+    }).join("");
+    const windCells = periods.map(({ periodIndex }) => `<td>${Math.round(hourly.wind_speed_10m[periodIndex] ?? 0)} mph</td>`).join("");
+    const rainCells = periods.map(({ periodIndex }) => `<td>${hourly.precipitation_probability[periodIndex] ?? 0}%</td>`).join("");
+    const humidityCells = periods.map(({ periodIndex }) => `<td>${hourly.relative_humidity_2m[periodIndex] ?? 0}%</td>`).join("");
+    const outlook = `<table class="outlook-table"><thead><tr><th scope="col" class="outlook-stat-head">Time</th>${timeHeaders}</tr></thead><tbody>${outlookRow("°", temperatureCells)}${outlookRow("↗", windCells)}${outlookRow("☂", rainCells)}${outlookRow("◌", humidityCells)}</tbody></table>`;
     const row = document.createElement("article");
     row.className = "day-row";
-    row.innerHTML = `<div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div><div class="day-outlook"><div class="outlook-grid">${outlook}</div></div>`;
+    row.innerHTML = `<div class="day-headline"><div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div></div><div class="day-outlook">${outlook}</div>`;
     return row;
   }));
   $("#date-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", timeZone: data.weather.timezone }).format(new Date(current.time));

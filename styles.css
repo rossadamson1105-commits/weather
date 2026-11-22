@@ -114,10 +114,11 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .source-value { color: var(--accent); font-size: 13px; font-weight: 700; white-space: nowrap; }
 .source-unavailable { color: var(--muted); font-size: 9px; white-space: nowrap; }
 .week-panel { margin-top: 15px; }
-.week-columns, .day-row { display: grid; grid-template-columns: minmax(100px, .75fr) minmax(145px, 1.1fr) minmax(105px, .7fr) minmax(72px, .5fr); align-items: start; column-gap: 16px; }
+.week-columns { display: grid; grid-template-columns: minmax(100px, .75fr) minmax(145px, 1.1fr) minmax(105px, .7fr) minmax(72px, .5fr); align-items: center; column-gap: 16px; }
 .week-columns { margin-top: 23px; padding: 0 13px 9px; color: #81877b; font-size: 8px; font-weight: 700; letter-spacing: .8px; }
 .week-list { border-top: 1px solid var(--line); }
-.day-row { min-height: 178px; grid-template-rows: auto auto; padding: 10px 13px; border-bottom: 1px solid var(--line); }
+.day-row { display: block; width: 100%; padding: 0; border-bottom: 1px solid var(--line); }
+.day-headline { width: 100%; min-height: 66px; display: grid; grid-template-columns: minmax(100px, .75fr) minmax(145px, 1.1fr) minmax(105px, .7fr) minmax(72px, .5fr); align-items: center; column-gap: 16px; padding: 10px 13px; }
 .day-row:last-child { border-bottom: 0; }
 .day-date { min-width: 0; display: grid; gap: 3px; }
 .day-date strong { color: var(--ink); font-size: 12px; font-weight: 700; }
@@ -129,17 +130,18 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .day-temperature span { color: var(--muted); font-size: 10px; }
 .day-rain { display: flex; align-items: center; gap: 6px; color: var(--accent); font-size: 11px; }
 .day-rain span { font-size: 13px; }
-.day-outlook { grid-column: 1 / -1; grid-row: 2; min-width: 0; margin-top: 10px; padding-top: 0; border-top: 1px solid var(--line); }
-.outlook-grid { display: grid; grid-template-columns: repeat(8, minmax(56px, 1fr)); border: 0; background: var(--soft); }
-.period { min-width: 0; min-height: 106px; display: grid; grid-template-columns: 1fr; justify-items: stretch; align-content: start; gap: 2px; padding: 5px 8px; border-left: 1px solid var(--line); }
-.period:first-child { border-left: 0; }
-.period-time { color: var(--muted); font-size: 9px; font-weight: 700; text-align: center; }
-.period-temp { display: grid; grid-template-columns: 1fr 1fr; align-items: center; min-height: 25px; }
-.period-temp b { color: var(--accent); font-size: 16px; font-weight: 400; text-align: center; }
-.period-temp strong { color: var(--ink); font-size: 13px; text-align: center; }
-.period-stat { display: grid; grid-template-columns: 22px 1fr; align-items: center; min-height: 18px; }
-.period-stat b { color: var(--accent); font-size: 12px; font-weight: 400; text-align: center; }
-.period-stat strong { color: var(--muted); font-size: 9px; font-weight: 600; text-align: left; white-space: nowrap; }
+.day-outlook { grid-column: 1 / -1; width: 100%; min-width: 0; overflow-x: auto; }
+.outlook-table { width: 100%; border-collapse: collapse; table-layout: fixed; background: var(--soft); border: 0; border-top: 1px solid var(--line); overflow: hidden; }
+.outlook-table th, .outlook-table td { height: 24px; padding: 3px 5px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); text-align: center; font-size: 9px; }
+.outlook-table thead th { height: 28px; border-top: 0; color: var(--muted); font-size: 8px; font-weight: 700; }
+.outlook-table th:first-child { border-left: 0; }
+.outlook-table tbody th { width: 50px; border-left: 0; color: var(--accent); }
+.outlook-table tbody th b { font-size: 13px; font-weight: 400; }
+.outlook-table td { color: var(--muted); }
+.outlook-table td strong { color: var(--ink); font-size: 10px; }
+.outlook-stat-head { color: var(--muted); }
+.outlook-temp { display: inline-grid; grid-template-columns: auto auto; align-items: center; gap: 5px; }
+.outlook-temp b { color: var(--accent); font-size: 13px; font-weight: 400; }
 
 .attribution { margin: 12px 0 0; color: var(--muted); font-size: 9px; }
 .attribution a { color: inherit; }
@@ -156,13 +158,14 @@ footer span:first-child { color: var(--ink); font-weight: 700; }
   .weather-panel { min-height: 275px; }
   .source-list { grid-template-columns: 1fr 1fr; }
   .week-columns { display: none; }
-  .day-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 13px 5px; }
+  .day-row { display: block; width: 100%; }
+  .day-headline { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; min-height: 68px; padding: 13px 5px; }
   .day-date { grid-column: 1; grid-row: 1; }
   .day-condition { grid-column: 1; grid-row: 2; }
   .day-temperature { grid-column: 2; grid-row: 1; justify-self: end; }
   .day-rain { grid-column: 2; grid-row: 2; justify-self: end; }
-  .day-outlook { grid-column: 1 / -1; grid-row: 3; }
-  .outlook-grid { grid-template-columns: repeat(8, minmax(54px, 1fr)); overflow-x: auto; }
+  .day-outlook { grid-column: 1; }
+  .outlook-table { min-width: 520px; }
   .lower-grid { gap: 12px; }
 }
 @media (max-width: 420px) {
