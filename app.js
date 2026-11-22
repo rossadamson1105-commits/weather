@@ -19,7 +19,12 @@ let unit = "celsius";
 let forecastData;
 let locationLabel = "Glasgow, Scotland, GB";
 
+function savingAllowed() {
+  try { return localStorage.getItem("weather-save-disabled") !== "true"; } catch { return false; }
+}
+
 function saveLocation(latitude, longitude, location, forecastDays = 7) {
+  if (!savingAllowed()) return;
   try {
     localStorage.setItem("weather-location", JSON.stringify({ latitude, longitude, location, forecastDays }));
   } catch {}
@@ -49,13 +54,14 @@ function setTheme(theme, save = false) {
   $("#theme-icon").textContent = isDark ? "☀" : "☾";
   $("#theme-label").textContent = isDark ? "Light" : "Dark";
   $("meta[name='theme-color']").content = isDark ? "#151d19" : "#f4f4ef";
-  if (save) {
+  if (save && savingAllowed()) {
     try { localStorage.setItem("weather-theme", isDark ? "dark" : "light"); } catch {}
   }
 }
 
 let preferredUnit = "celsius";
 try {
+  if (!savingAllowed()) throw new Error("Saving disabled");
   const savedUnit = localStorage.getItem("weather-unit");
   if (savedUnit === "celsius" || savedUnit === "fahrenheit") preferredUnit = savedUnit;
 } catch {}
@@ -68,6 +74,7 @@ document.querySelectorAll("[data-unit]").forEach((button) => {
 
 let preferredTheme = "dark";
 try {
+  if (!savingAllowed()) throw new Error("Saving disabled");
   const savedTheme = localStorage.getItem("weather-theme");
   preferredTheme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "dark";
 } catch {}
@@ -79,7 +86,30 @@ try {
   privacyNote.hidden = false;
 }
 $("#accept-privacy").addEventListener("click", () => {
-  try { localStorage.setItem("weather-privacy-accepted", "true"); } catch {}
+  try {
+    localStorage.setItem("weather-privacy-accepted", "true");
+    localStorage.removeItem("weather-save-disabled");
+    localStorage.setItem("weather-theme", document.documentElement.dataset.theme === "light" ? "light" : "dark");
+    localStorage.setItem("weather-unit", unit);
+  } catch {}
+  if (forecastData) {
+    saveLocation(
+      forecastData.weather.latitude,
+      forecastData.weather.longitude,
+      forecastData.location,
+      forecastData.requestedDays || 7
+    );
+  }
+  privacyNote.hidden = true;
+});
+$("#decline-privacy").addEventListener("click", () => {
+  try {
+    localStorage.setItem("weather-privacy-accepted", "false");
+    localStorage.setItem("weather-save-disabled", "true");
+    localStorage.removeItem("weather-location");
+    localStorage.removeItem("weather-theme");
+    localStorage.removeItem("weather-unit");
+  } catch {}
   privacyNote.hidden = true;
 });
 $("#clear-settings").addEventListener("click", () => {
@@ -87,6 +117,7 @@ $("#clear-settings").addEventListener("click", () => {
     localStorage.removeItem("weather-location");
     localStorage.removeItem("weather-theme");
     localStorage.removeItem("weather-unit");
+    localStorage.removeItem("weather-privacy-accepted");
   } catch {}
   setTheme("dark");
   unit = "celsius";
@@ -358,7 +389,9 @@ $("#extend-forecast").addEventListener("click", () => {
 
 document.querySelectorAll("[data-unit]").forEach((button) => button.addEventListener("click", () => {
   unit = button.dataset.unit;
-  try { localStorage.setItem("weather-unit", unit); } catch {}
+  if (savingAllowed()) {
+    try { localStorage.setItem("weather-unit", unit); } catch {}
+  }
   document.querySelectorAll("[data-unit]").forEach((other) => {
     const active = other === button;
     other.classList.toggle("active", active);
@@ -370,7 +403,7 @@ document.querySelectorAll("[data-unit]").forEach((button) => button.addEventList
   }
 }));
 
-const savedLocation = getSavedLocation();
+const savedLocation = savingAllowed() ? getSavedLocation() : null;
 if (savedLocation?.latitude && savedLocation?.longitude) {
   loadWeather(savedLocation.latitude, savedLocation.longitude, savedLocation.location, savedLocation.forecastDays || 7)
     .catch((error) => { $("#status").textContent = error.message; });

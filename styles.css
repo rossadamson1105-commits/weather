@@ -215,7 +215,7 @@ footer span:first-child { color: var(--ink); font-weight: 700; }
   .conditions small { font-size: 8px; }
   .conditions strong { font-size: 10px; }
   .privacy-note { grid-template-columns: 1fr; right: 12px; bottom: 12px; width: calc(100% - 24px); }
-  .privacy-note > div { grid-template-columns: 1fr 1fr; }
+  .privacy-note > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   footer { padding-inline: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
