@@ -117,7 +117,7 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .week-columns, .day-row { display: grid; grid-template-columns: minmax(100px, .75fr) minmax(145px, 1.1fr) minmax(105px, .7fr) minmax(72px, .5fr); align-items: start; column-gap: 16px; }
 .week-columns { margin-top: 23px; padding: 0 13px 9px; color: #81877b; font-size: 8px; font-weight: 700; letter-spacing: .8px; }
 .week-list { border-top: 1px solid var(--line); }
-.day-row { min-height: 178px; padding: 10px 13px; border-bottom: 1px solid var(--line); }
+.day-row { min-height: 178px; grid-template-rows: auto auto; padding: 10px 13px; border-bottom: 1px solid var(--line); }
 .day-row:last-child { border-bottom: 0; }
 .day-date { min-width: 0; display: grid; gap: 3px; }
 .day-date strong { color: var(--ink); font-size: 12px; font-weight: 700; }
@@ -129,18 +129,17 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .day-temperature span { color: var(--muted); font-size: 10px; }
 .day-rain { display: flex; align-items: center; gap: 6px; color: var(--accent); font-size: 11px; }
 .day-rain span { font-size: 13px; }
-.day-outlook { grid-column: 1 / -1; min-width: 0; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
-.outlook-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 6px; background: var(--soft); }
-.period { min-width: 0; min-height: 118px; display: grid; grid-template-columns: 1fr; justify-items: stretch; align-content: start; gap: 3px; padding: 7px 10px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.period:nth-child(4n + 1) { border-left: 0; }
-.period:nth-last-child(-n + 4) { border-bottom: 0; }
+.day-outlook { grid-column: 1 / -1; grid-row: 2; min-width: 0; margin-top: 10px; padding-top: 0; border-top: 1px solid var(--line); }
+.outlook-grid { display: grid; grid-template-columns: repeat(8, minmax(56px, 1fr)); border: 0; background: var(--soft); }
+.period { min-width: 0; min-height: 106px; display: grid; grid-template-columns: 1fr; justify-items: stretch; align-content: start; gap: 2px; padding: 5px 8px; border-left: 1px solid var(--line); }
+.period:first-child { border-left: 0; }
 .period-time { color: var(--muted); font-size: 9px; font-weight: 700; text-align: center; }
-.period-weather { display: grid; grid-template-columns: 1fr 1fr; align-items: center; margin: 1px 0 3px; }
-.period-weather b { color: var(--accent); font-size: 17px; font-weight: 400; text-align: center; }
-.period-weather strong { color: var(--ink); font-size: 12px; text-align: center; }
-.period-condition { display: grid; grid-template-columns: 24px 1fr; align-items: center; color: var(--muted); font-size: 8px; }
-.period-condition b { color: var(--accent); font-size: 13px; font-weight: 400; text-align: center; }
-.period-condition em { font-style: normal; white-space: nowrap; }
+.period-temp { display: grid; grid-template-columns: 1fr 1fr; align-items: center; min-height: 25px; }
+.period-temp b { color: var(--accent); font-size: 16px; font-weight: 400; text-align: center; }
+.period-temp strong { color: var(--ink); font-size: 13px; text-align: center; }
+.period-stat { display: grid; grid-template-columns: 22px 1fr; align-items: center; min-height: 18px; }
+.period-stat b { color: var(--accent); font-size: 12px; font-weight: 400; text-align: center; }
+.period-stat strong { color: var(--muted); font-size: 9px; font-weight: 600; text-align: left; white-space: nowrap; }
 
 .attribution { margin: 12px 0 0; color: var(--muted); font-size: 9px; }
 .attribution a { color: inherit; }
@@ -163,7 +162,7 @@ footer span:first-child { color: var(--ink); font-weight: 700; }
   .day-temperature { grid-column: 2; grid-row: 1; justify-self: end; }
   .day-rain { grid-column: 2; grid-row: 2; justify-self: end; }
   .day-outlook { grid-column: 1 / -1; grid-row: 3; }
-  .outlook-grid { grid-template-columns: repeat(4, minmax(70px, 1fr)); }
+  .outlook-grid { grid-template-columns: repeat(8, minmax(54px, 1fr)); overflow-x: auto; }
   .lower-grid { gap: 12px; }
 }
 @media (max-width: 420px) {
