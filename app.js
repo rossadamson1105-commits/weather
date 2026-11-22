@@ -84,6 +84,7 @@ try {
 setTheme(preferredTheme);
 const privacyNote = $("#privacy-note");
 const footerAccept = $("#footer-accept");
+const footerClear = $("#footer-clear-settings");
 document.body.classList.toggle("consent-open", privacyNote.hidden === false);
 try {
   const consentChoice = localStorage.getItem("weather-privacy-accepted") === "true";
@@ -91,6 +92,7 @@ try {
   const needsChoice = !consentChoice || !savedLocation;
   if (needsChoice) privacyNote.hidden = false;
   footerAccept.hidden = consentChoice && savedLocation;
+  footerClear.hidden = !(consentChoice && savedLocation);
 } catch {
   privacyNote.hidden = false;
 }
@@ -110,6 +112,7 @@ $("#accept-privacy").addEventListener("click", () => {
   }
   privacyNote.hidden = true;
   footerAccept.hidden = true;
+  footerClear.hidden = false;
   document.body.classList.remove("consent-open");
 });
 $("#decline-privacy").addEventListener("click", () => {
@@ -121,6 +124,7 @@ $("#decline-privacy").addEventListener("click", () => {
   } catch {}
   privacyNote.hidden = true;
   footerAccept.hidden = false;
+  footerClear.hidden = true;
   document.body.classList.remove("consent-open");
 });
 
@@ -132,6 +136,7 @@ $("#footer-clear-settings").addEventListener("click", () => {
     localStorage.removeItem("weather-privacy-accepted");
   } catch {}
   footerAccept.hidden = false;
+  footerClear.hidden = true;
   privacyNote.hidden = false;
   document.body.classList.add("consent-open");
 });
@@ -142,6 +147,7 @@ $("#footer-accept").addEventListener("click", () => {
   } catch {}
   if (forecastData) saveLocation(forecastData.weather.latitude, forecastData.weather.longitude, forecastData.location, forecastData.requestedDays || 7);
   footerAccept.hidden = true;
+  footerClear.hidden = false;
 });
 
 themeToggle.addEventListener("click", () => {
