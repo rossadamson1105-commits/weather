@@ -137,32 +137,52 @@ function renderForecast(data) {
     const outlookRow = (icon, values) => `<tr><th scope="row"><b aria-hidden="true">${icon}</b></th>${values}</tr>`;
     const temperatureCells = periods.map(({ periodIndex }) => {
       const periodIcon = weatherCode(hourly.weather_code[periodIndex])[1];
-      return `<td><span class="outlook-temp"><b aria-hidden="true">${periodIcon}</b><strong>${displayTemp(hourly.temperature_2m[periodIndex])}</strong></span></td>`;
+      const temperature = displayTemp(hourly.temperature_2m[periodIndex]);
+      return `<td title="Temperature: ${temperature}"><span class="outlook-temp"><b aria-hidden="true">${periodIcon}</b><strong>${temperature}</strong></span></td>`;
     }).join("");
-    const windCells = periods.map(({ periodIndex }) => `<td>${Math.round(hourly.wind_speed_10m[periodIndex] ?? 0)} mph</td>`).join("");
-    const rainCells = periods.map(({ periodIndex }) => `<td>${hourly.precipitation_probability[periodIndex] ?? 0}%</td>`).join("");
-    const humidityCells = periods.map(({ periodIndex }) => `<td>${hourly.relative_humidity_2m[periodIndex] ?? 0}%</td>`).join("");
-    const outlook = `<table class="outlook-table"><thead><tr><th scope="col" class="outlook-stat-head">Time</th>${timeHeaders}</tr></thead><tbody>${outlookRow("°", temperatureCells)}${outlookRow("↗", windCells)}${outlookRow("☂", rainCells)}${outlookRow("◌", humidityCells)}</tbody></table>`;
+    const windDirection = (degrees) => {
+      const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+      return directions[Math.round((degrees ?? 0) / 45) % 8];
+    };
+    const windCells = periods.map(({ periodIndex }) => {
+      const speed = Math.round(hourly.wind_speed_10m[periodIndex] ?? 0);
+      const direction = windDirection(hourly.wind_direction_10m[periodIndex]);
+      return `<td title="Wind: ${speed} mph ${direction}">${speed} ${direction}</td>`;
+    }).join("");
+    const rainCells = periods.map(({ periodIndex }) => {
+      const chance = hourly.precipitation_probability[periodIndex] ?? 0;
+      return `<td title="Precipitation: ${chance}%"><span class="stat-icon rain-icon" aria-label="Precipitation ${chance}%">☂</span><strong class="rain-value">${chance}%</strong></td>`;
+    }).join("");
+    const humidityCells = periods.map(({ periodIndex }) => {
+      const humidity = hourly.relative_humidity_2m[periodIndex] ?? 0;
+      return `<td title="Humidity: ${humidity}%"><span class="stat-icon humidity-icon" aria-label="Humidity ${humidity}%">●</span><strong class="humidity-value">${humidity}%</strong></td>`;
+    }).join("");
+    const outlook = `<table class="outlook-table"><thead><tr><th scope="col" class="outlook-stat-head">Time</th>${timeHeaders}</tr></thead><tbody>${outlookRow("°", temperatureCells)}${outlookRow("↗", windCells)}${outlookRow("☂", rainCells)}${outlookRow("●", humidityCells)}</tbody></table>`;
+    const open = index === 0 ? " open" : "";
     const row = document.createElement("article");
     row.className = "day-row";
-    row.innerHTML = `<div class="day-headline"><div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div></div><div class="day-outlook">${outlook}</div>`;
+    row.innerHTML = `<div class="day-headline"><div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div></div><details class="day-outlook"${open}><summary><span>3-hour outlook</span><small>${periods.length} periods</small></summary><div class="day-outlook-content">${outlook}</div></details>`;
     return row;
   }));
   $("#date-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", timeZone: data.weather.timezone }).format(new Date(current.time));
+  const extendButton = $("#extend-forecast");
+  const loadedDays = daily.time.length;
+  extendButton.disabled = loadedDays >= 21;
+  extendButton.querySelector("small").textContent = loadedDays >= 21 ? "21 days loaded" : loadedDays >= 14 ? "Add 7 more days" : "Add 7 more days";
   $("#dashboard").hidden = false;
   $("#status").hidden = true;
 }
 
-async function loadWeather(latitude, longitude, location) {
+async function loadWeather(latitude, longitude, location, forecastDays = 7) {
   $("#status").hidden = false;
   $("#status").textContent = `Finding the forecast for ${location}...`;
   $("#dashboard").hidden = true;
   const params = new URLSearchParams({
     latitude, longitude,
-    current: "temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m",
-    hourly: "temperature_2m,precipitation_probability,weather_code,relative_humidity_2m,wind_speed_10m",
+    current: "temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m,wind_direction_10m",
+    hourly: "temperature_2m,precipitation_probability,weather_code,relative_humidity_2m,wind_speed_10m,wind_direction_10m",
     daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max",
-    temperature_unit: "fahrenheit", wind_speed_unit: "mph", timezone: "auto", forecast_days: "7",
+    temperature_unit: "fahrenheit", wind_speed_unit: "mph", timezone: "auto", forecast_days: String(forecastDays),
   });
   const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
   if (!response.ok) throw new Error("Weather data is temporarily unavailable.");
@@ -195,6 +215,17 @@ $("#locate").addEventListener("click", () => {
   navigator.geolocation.getCurrentPosition(({ coords }) => {
     loadWeather(coords.latitude, coords.longitude, "Your location").catch((error) => { $("#status").hidden = false; $("#status").textContent = error.message; });
   }, () => { $("#status").hidden = false; $("#status").textContent = "Couldn't access your location. Search for a city instead."; }, { timeout: 10000 });
+});
+
+$("#extend-forecast").addEventListener("click", () => {
+  if (!forecastData) return;
+  const currentDays = forecastData.weather.daily.time.length;
+  if (currentDays >= 21) return;
+  const nextDays = currentDays >= 14 ? 21 : 14;
+  loadWeather(forecastData.weather.latitude, forecastData.weather.longitude, forecastData.location, nextDays).catch((error) => {
+    $("#status").hidden = false;
+    $("#status").textContent = error.message;
+  });
 });
 
 document.querySelectorAll("[data-unit]").forEach((button) => button.addEventListener("click", () => {

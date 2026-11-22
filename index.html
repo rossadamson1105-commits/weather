@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=daily-subtable-2" />
-    <script src="app.js?v=daily-subtable-2" defer></script>
+    <link rel="stylesheet" href="styles.css?v=monochrome-1" />
+    <script src="app.js?v=monochrome-1" defer></script>
   </head>
   <body>
     <header class="topbar">
@@ -61,6 +61,7 @@
           <div class="panel-heading"><div><p class="eyebrow">The week ahead</p><h2>7-day forecast</h2></div><span class="small-label">DAILY OUTLOOK</span></div>
           <div class="week-columns" aria-hidden="true"><span>DAY</span><span>FORECAST</span><span>TEMPERATURE</span><span>RAIN</span></div>
           <div class="week-list" id="week-forecast"></div>
+          <button class="extend-forecast" id="extend-forecast" type="button" aria-label="Show more forecast days"><span aria-hidden="true">+</span><small>More days</small></button>
         </section>
 
         <section class="lower-grid" aria-label="Forecast details">
@@ -71,9 +72,9 @@
           <article class="panel conditions-panel">
             <div class="panel-heading"><div><p class="eyebrow">Outside right now</p><h2>Conditions</h2></div><span class="sun-mark" aria-hidden="true">✳</span></div>
             <div class="conditions">
-              <div><span aria-hidden="true">↗</span><small>Wind</small><strong id="wind">-- mph</strong></div>
-              <div><span aria-hidden="true">⌁</span><small>Rain chance</small><strong id="rain">--%</strong></div>
-              <div><span aria-hidden="true">◌</span><small>Humidity</small><strong id="humidity">--%</strong></div>
+              <div title="Wind speed and direction"><span aria-hidden="true">↗</span><small>Wind</small><strong id="wind">-- mph</strong></div>
+              <div title="Chance of precipitation"><span aria-hidden="true">☂</span><small>Rain chance</small><strong id="rain">--%</strong></div>
+              <div title="Relative humidity"><span aria-hidden="true">●</span><small>Humidity</small><strong id="humidity">--%</strong></div>
             </div>
           </article>
         </section>
