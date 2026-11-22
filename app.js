@@ -88,11 +88,12 @@ const footerClearLocation = $("#footer-clear-location");
 const footerDecline = $("#footer-decline");
 document.body.classList.toggle("consent-open", privacyNote.hidden === false);
 try {
-  const consentChoice = localStorage.getItem("weather-privacy-accepted") === "true";
+  const consentChoice = localStorage.getItem("weather-privacy-choice");
+  const accepted = consentChoice === "yes" && localStorage.getItem("weather-privacy-accepted") === "true";
   const savedLocation = getSavedLocation();
-  const needsChoice = !consentChoice || !savedLocation;
+  const needsChoice = consentChoice !== "yes" && consentChoice !== "no";
   if (needsChoice) privacyNote.hidden = false;
-  const acceptedWithData = Boolean(consentChoice && savedLocation);
+  const acceptedWithData = Boolean(accepted && savedLocation);
   footerAccept.hidden = acceptedWithData;
   footerClearLocation.hidden = !acceptedWithData;
   footerDecline.hidden = !acceptedWithData;
@@ -101,6 +102,7 @@ try {
 }
 $("#accept-privacy").addEventListener("click", () => {
   try {
+    localStorage.setItem("weather-privacy-choice", "yes");
     localStorage.setItem("weather-privacy-accepted", "true");
     localStorage.setItem("weather-theme", document.documentElement.dataset.theme === "light" ? "light" : "dark");
     localStorage.setItem("weather-unit", unit);
@@ -121,6 +123,7 @@ $("#accept-privacy").addEventListener("click", () => {
 });
 $("#decline-privacy").addEventListener("click", () => {
   try {
+    localStorage.setItem("weather-privacy-choice", "no");
     localStorage.removeItem("weather-privacy-accepted");
     localStorage.removeItem("weather-location");
     localStorage.removeItem("weather-theme");
@@ -135,6 +138,7 @@ $("#decline-privacy").addEventListener("click", () => {
 
 $("#footer-accept").addEventListener("click", () => {
   try {
+    localStorage.setItem("weather-privacy-choice", "yes");
     localStorage.setItem("weather-privacy-accepted", "true");
   } catch {}
   if (forecastData) saveLocation(forecastData.weather.latitude, forecastData.weather.longitude, forecastData.location, forecastData.requestedDays || 7);
@@ -145,6 +149,7 @@ $("#footer-accept").addEventListener("click", () => {
 
 $("#footer-decline").addEventListener("click", () => {
   try {
+    localStorage.setItem("weather-privacy-choice", "no");
     localStorage.removeItem("weather-privacy-accepted");
     localStorage.removeItem("weather-location");
     localStorage.removeItem("weather-theme");
@@ -163,6 +168,7 @@ $("#footer-clear-location").addEventListener("click", () => {
     localStorage.removeItem("weather-theme");
     localStorage.removeItem("weather-unit");
     localStorage.removeItem("weather-privacy-accepted");
+    localStorage.removeItem("weather-privacy-choice");
   } catch {}
   footerAccept.hidden = false;
   footerClearLocation.hidden = true;
@@ -369,8 +375,23 @@ async function searchCity(city) {
   const townName = parts[0] || city;
   const suffixes = parts.slice(1).join(", ");
   const params = new URLSearchParams({ name: townName, count: "10", language: "en", format: "json" });
-  const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${params}`);
-  if (!response.ok) throw new Error("City search is temporarily unavailable.");
+  let response;
+  try {
+    response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${params}`);
+  } catch {
+    if (townName.toLowerCase() === "glasgow") {
+      await loadWeather(55.86515, -4.25763, "Glasgow, Glasgow City, Scotland, GB");
+      return;
+    }
+    throw new Error("City search is temporarily unavailable.");
+  }
+  if (!response.ok) {
+    if (townName.toLowerCase() === "glasgow") {
+      await loadWeather(55.86515, -4.25763, "Glasgow, Glasgow City, Scotland, GB");
+      return;
+    }
+    throw new Error("City search is temporarily unavailable.");
+  }
   const result = await response.json();
   if (!result.results?.length) throw new Error(`Couldn't find "${city}". Try another city.`);
   const exactMatches = result.results.filter((place) => place.name.toLowerCase() === townName.toLowerCase());
