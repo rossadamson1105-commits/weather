@@ -260,12 +260,13 @@ $("#locate").addEventListener("click", () => {
   navigator.geolocation.getCurrentPosition(async ({ coords }) => {
     let location = "Your location";
     try {
-      const reverseParams = new URLSearchParams({ latitude: coords.latitude, longitude: coords.longitude, localityLanguage: "en" });
+      const reverseParams = new URLSearchParams({ latitude: String(coords.latitude), longitude: String(coords.longitude), localityLanguage: "en" });
       const reverseResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?${reverseParams}`);
       if (reverseResponse.ok) {
         const place = await reverseResponse.json();
-        const town = place.city || place.locality || place.principalSubdivision;
-        location = [town, place.principalSubdivision, place.countryCode].filter(Boolean).join(", ");
+        const town = place.locality || place.city || place.principalSubdivision;
+        const region = place.principalSubdivision || place.region;
+        location = [town, region, place.countryCode].filter(Boolean).join(", ");
       }
     } catch {}
     loadWeather(coords.latitude, coords.longitude, location).catch((error) => { $("#status").hidden = false; $("#status").textContent = error.message; });
