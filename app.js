@@ -69,8 +69,8 @@ async function loadSources(latitude, longitude) {
     try {
       const params = new URLSearchParams({
         latitude, longitude,
-        hourly: "temperature_2m,wind_speed_10m,relative_humidity_2m,precipitation_probability",
-        forecast_hours: "2", temperature_unit: "fahrenheit", wind_speed_unit: "mph",
+        hourly: "temperature_2m,wind_speed_10m,wind_direction_10m,relative_humidity_2m,precipitation_probability",
+        forecast_days: "14", temperature_unit: "fahrenheit", wind_speed_unit: "mph",
         timezone: "auto", models: source.model,
       });
       const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
@@ -82,6 +82,7 @@ async function loadSources(latitude, longitude) {
         wind: data.hourly.wind_speed_10m?.[0],
         humidity: data.hourly.relative_humidity_2m?.[0],
         rain: data.hourly.precipitation_probability?.[0],
+        hourly: data.hourly,
       };
     } catch {
       return { source, error: true };
@@ -104,6 +105,33 @@ async function loadSources(latitude, longitude) {
     $("#headline-humidity").textContent = `${Math.round(averageHumidity)}%`;
   }
   if (Number.isFinite(averageRain)) $("#rain").textContent = `${Math.round(averageRain)}%`;
+
+  const sourceHourly = results.filter((result) => result.hourly?.time).map((result) => result.hourly);
+  if (sourceHourly.length) {
+    const time = sourceHourly[0].time;
+    const meanAt = (field, index) => {
+      const values = sourceHourly.map((hourly) => hourly[field]?.[index]).filter((value) => Number.isFinite(value));
+      return values.length ? values.reduce((total, value) => total + value, 0) / values.length : null;
+    };
+    const meanDirectionAt = (index) => {
+      const values = sourceHourly.map((hourly) => hourly.wind_direction_10m?.[index]).filter((value) => Number.isFinite(value));
+      if (!values.length) return null;
+      const radians = values.map((value) => value * Math.PI / 180);
+      const x = radians.reduce((total, value) => total + Math.cos(value), 0) / radians.length;
+      const y = radians.reduce((total, value) => total + Math.sin(value), 0) / radians.length;
+      return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+    };
+    const averageHourly = {
+      time,
+      temperature_2m: time.map((_, index) => meanAt("temperature_2m", index)),
+      wind_speed_10m: time.map((_, index) => meanAt("wind_speed_10m", index)),
+      wind_direction_10m: time.map((_, index) => meanDirectionAt(index)),
+      precipitation_probability: time.map((_, index) => meanAt("precipitation_probability", index)),
+      relative_humidity_2m: time.map((_, index) => meanAt("relative_humidity_2m", index)),
+    };
+    forecastData.averageHourly = averageHourly;
+    renderForecast(forecastData);
+  }
 }
 
 function renderForecast(data) {
@@ -148,6 +176,7 @@ function renderForecast(data) {
     const label = index === 0 ? "Today" : index === 1 ? "Tomorrow" : weekday;
     const [condition, icon] = weatherCode(daily.weather_code[index]);
     const rain = daily.precipitation_probability_max[index] ?? 0;
+    const averagedHourly = data.averageHourly || hourly;
     const periods = hourly.time.map((time, periodIndex) => ({ time, periodIndex }))
       .filter(({ time }) => time.startsWith(date))
       .filter(({ time }) => Number(time.slice(11, 13)) % 3 === 0)
@@ -158,27 +187,31 @@ function renderForecast(data) {
       return `<th scope="col">${new Intl.DateTimeFormat(undefined, { hour: "numeric", timeZone: data.weather.timezone }).format(timestamp)}</th>`;
     }).join("");
     const outlookRow = (icon, label, values) => `<tr><th scope="row" title="${label}"><b class="outlook-row-icon outlook-${label.toLowerCase()}" aria-label="${label}" aria-hidden="true">${icon}</b></th>${values}</tr>`;
-    const temperatureCells = periods.map(({ periodIndex }) => {
-      const periodIcon = weatherCode(hourly.weather_code[periodIndex])[1];
-      const temperature = displayTemp(hourly.temperature_2m[periodIndex]);
+    const temperatureCells = periods.map(({ time }) => {
+      const periodIndex = averagedHourly.time.indexOf(time);
+      const periodIcon = weatherCode(hourly.weather_code[periodIndex])?.[1] || "☁";
+      const temperature = displayTemp(averagedHourly.temperature_2m[periodIndex]);
       return `<td title="Temperature: ${temperature}"><span class="outlook-temp"><b aria-hidden="true">${periodIcon}</b><strong>${temperature}</strong></span></td>`;
     }).join("");
     const windDirection = (degrees) => {
       const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
       return directions[Math.round((degrees ?? 0) / 45) % 8];
     };
-    const windCells = periods.map(({ periodIndex }) => {
-      const degrees = hourly.wind_direction_10m[periodIndex] ?? 0;
-      const speed = Math.round(hourly.wind_speed_10m[periodIndex] ?? 0);
+    const windCells = periods.map(({ time }) => {
+      const periodIndex = averagedHourly.time.indexOf(time);
+      const degrees = averagedHourly.wind_direction_10m[periodIndex] ?? 0;
+      const speed = Math.round(averagedHourly.wind_speed_10m[periodIndex] ?? 0);
       const direction = windDirection(degrees);
       return `<td title="Wind: ${speed} mph from ${direction} (${degrees}°)"><span class="wind-cell"><b aria-hidden="true" style="--wind-angle:${degrees}deg">↑</b><strong>${speed} mph</strong><small>${direction}</small></span></td>`;
     }).join("");
-    const rainCells = periods.map(({ periodIndex }) => {
-      const chance = hourly.precipitation_probability[periodIndex] ?? 0;
+    const rainCells = periods.map(({ time }) => {
+      const periodIndex = averagedHourly.time.indexOf(time);
+      const chance = Math.round(averagedHourly.precipitation_probability[periodIndex] ?? 0);
       return `<td title="Precipitation: ${chance}%"><span class="stat-icon rain-icon" aria-label="Precipitation ${chance}%">☂</span><strong class="rain-value">${chance}%</strong></td>`;
     }).join("");
-    const humidityCells = periods.map(({ periodIndex }) => {
-      const humidity = hourly.relative_humidity_2m[periodIndex] ?? 0;
+    const humidityCells = periods.map(({ time }) => {
+      const periodIndex = averagedHourly.time.indexOf(time);
+      const humidity = Math.round(averagedHourly.relative_humidity_2m[periodIndex] ?? 0);
       return `<td title="Humidity: ${humidity}%"><span class="stat-icon humidity-icon" aria-label="Humidity ${humidity}%">≋</span><strong class="humidity-value">${humidity}%</strong></td>`;
     }).join("");
     const outlook = `<table class="outlook-table"><thead><tr><th scope="col" class="outlook-stat-head">Time</th>${timeHeaders}</tr></thead><tbody>${outlookRow("°", "Temperature", temperatureCells)}${outlookRow("↗", "Wind", windCells)}${outlookRow("☂", "Precipitation", rainCells)}${outlookRow("≋", "Humidity", humidityCells)}</tbody></table>`;
@@ -193,9 +226,9 @@ function renderForecast(data) {
   const loadedDays = forecastData.requestedDays ?? daily.time.length;
   $("#forecast-heading").textContent = `${loadedDays}-day forecast`;
   $("#week-panel").setAttribute("aria-label", `${loadedDays}-day forecast`);
-  extendButton.disabled = loadedDays >= 21;
-  extendButton.setAttribute("aria-label", loadedDays >= 21 ? "21-day forecast loaded" : `Add 7 more days, show ${loadedDays >= 14 ? 21 : 14} days`);
-  extendButton.querySelector("small").textContent = loadedDays >= 21 ? "21 days loaded" : "Add 7 more days";
+  extendButton.disabled = loadedDays >= 14;
+  extendButton.setAttribute("aria-label", loadedDays >= 14 ? "14-day forecast loaded" : "Add 7 more days, show 14 days");
+  extendButton.querySelector("small").textContent = loadedDays >= 14 ? "14 days loaded" : "Add 7 more days";
   $("#dashboard").hidden = false;
   $("#status").hidden = true;
 }
@@ -247,8 +280,8 @@ $("#locate").addEventListener("click", () => {
 $("#extend-forecast").addEventListener("click", () => {
   if (!forecastData) return;
   const currentDays = forecastData.requestedDays ?? 7;
-  if (currentDays >= 21) return;
-  const nextDays = currentDays >= 14 ? 21 : 14;
+  if (currentDays >= 14) return;
+  const nextDays = 14;
   loadWeather(forecastData.weather.latitude, forecastData.weather.longitude, forecastData.location, nextDays).catch((error) => {
     $("#status").hidden = false;
     $("#status").textContent = error.message;

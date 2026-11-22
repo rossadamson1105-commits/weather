@@ -50,15 +50,15 @@
             </div>
             <div class="temp-row">
               <p class="temperature" id="temperature">--°</p>
-              <div class="temp-meta"><span>Feels like <strong id="feels-like">--°</strong></span><span>High <strong id="high">--°</strong> · Low <strong id="low">--°</strong></span></div>
+              <div class="temp-meta"><span>Feels like <strong id="feels-like">--°</strong></span><span>High <strong id="high">--°</strong> · Low <strong id="low">--°</strong></span><span><b aria-hidden="true">≋</b> Humidity <strong id="headline-humidity">--%</strong></span></div>
             </div>
             <p class="weather-note">A good day to get outside. <span>LOCAL FORECAST</span></p>
           </article>
 
         </section>
 
-        <section class="panel week-panel" aria-label="Seven day forecast">
-          <div class="panel-heading"><div><p class="eyebrow">The week ahead</p><h2>7-day forecast</h2></div><span class="small-label">DAILY OUTLOOK</span></div>
+        <section class="panel week-panel" id="week-panel" aria-label="Seven day forecast">
+          <div class="panel-heading"><div><p class="eyebrow">The week ahead</p><h2 id="forecast-heading">7-day forecast</h2></div><span class="small-label">DAILY OUTLOOK</span></div>
           <div class="week-columns" aria-hidden="true"><span>DAY</span><span>FORECAST</span><span>TEMPERATURE</span><span>RAIN</span></div>
           <div class="week-list" id="week-forecast"></div>
           <button class="extend-forecast" id="extend-forecast" type="button" aria-label="Show more forecast days"><span aria-hidden="true">+</span><small>More days</small></button>
