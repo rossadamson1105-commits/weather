@@ -17,7 +17,22 @@ const sources = [
 ];
 let unit = "celsius";
 let forecastData;
-let locationLabel = "Glasgow, Scotland";
+let locationLabel = "Glasgow, Scotland, GB";
+
+function saveLocation(latitude, longitude, location, forecastDays = 7) {
+  try {
+    localStorage.setItem("weather-location", JSON.stringify({ latitude, longitude, location, forecastDays }));
+  } catch {}
+}
+
+function getSavedLocation() {
+  try {
+    const saved = localStorage.getItem("weather-location");
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+}
 
 const $ = (selector) => document.querySelector(selector);
 const themeToggle = $("#theme-toggle");
@@ -231,6 +246,7 @@ async function loadWeather(latitude, longitude, location, forecastDays = 7) {
   const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
   if (!response.ok) throw new Error("Weather data is temporarily unavailable.");
   const weather = await response.json();
+  saveLocation(latitude, longitude, location, forecastDays);
   renderForecast({ weather, location, requestedDays: forecastDays });
   loadSources(latitude, longitude);
 }
@@ -246,7 +262,9 @@ async function searchCity(city) {
   const exactMatches = result.results.filter((place) => place.name.toLowerCase() === city.toLowerCase());
   const place = exactMatches.find((place) => place.country_code === "GB") || exactMatches[0] || result.results[0];
   const townName = place.name || city;
-  const location = [townName, place.admin1, place.country_code].filter((value, index, values) => value && values.indexOf(value) === index).join(", ");
+  const location = [townName, place.admin2, place.admin1, place.country_code]
+    .filter((value, index, values) => value && values.indexOf(value) === index)
+    .join(", ");
   await loadWeather(place.latitude, place.longitude, location);
 }
 
@@ -265,9 +283,15 @@ $("#locate").addEventListener("click", () => {
       const reverseResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?${reverseParams}`);
       if (reverseResponse.ok) {
         const place = await reverseResponse.json();
-        const town = place.locality || place.city || place.principalSubdivision;
+        const localityInfo = place.localityInfo?.administrative;
+        const county = localityInfo?.find((item) => item.adminLevel === 2 || item.order === 3)?.name
+          || place.principalSubdivision;
+        const town = place.locality || place.city || place.localityInfo?.find((item) => item.order === 1)?.name
+          || county;
         const region = place.principalSubdivision || place.region;
-        location = [town, region, place.countryCode].filter((value, index, values) => value && values.indexOf(value) === index).join(", ");
+        location = [town, county, region, place.countryCode]
+          .filter((value, index, values) => value && values.indexOf(value) === index)
+          .join(", ");
       }
     } catch {}
     loadWeather(coords.latitude, coords.longitude, location).catch((error) => { $("#status").hidden = false; $("#status").textContent = error.message; });
@@ -298,4 +322,10 @@ document.querySelectorAll("[data-unit]").forEach((button) => button.addEventList
   }
 }));
 
-searchCity("Glasgow").catch((error) => { $("#status").textContent = error.message; });
+const savedLocation = getSavedLocation();
+if (savedLocation?.latitude && savedLocation?.longitude) {
+  loadWeather(savedLocation.latitude, savedLocation.longitude, savedLocation.location, savedLocation.forecastDays || 7)
+    .catch((error) => { $("#status").textContent = error.message; });
+} else {
+  searchCity("Glasgow").catch((error) => { $("#status").textContent = error.message; });
+}
