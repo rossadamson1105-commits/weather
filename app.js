@@ -80,10 +80,13 @@ try {
 } catch {}
 setTheme(preferredTheme);
 const privacyNote = $("#privacy-note");
+const footerAccept = $("#footer-accept");
 document.body.classList.toggle("consent-open", privacyNote.hidden === false);
 try {
   const consentChoice = localStorage.getItem("weather-privacy-accepted");
-  if (consentChoice !== "true" && consentChoice !== "false") privacyNote.hidden = false;
+  const needsChoice = consentChoice !== "true" && consentChoice !== "false";
+  if (needsChoice) privacyNote.hidden = false;
+  footerAccept.hidden = consentChoice === "true";
 } catch {
   privacyNote.hidden = false;
 }
@@ -103,6 +106,7 @@ $("#accept-privacy").addEventListener("click", () => {
     );
   }
   privacyNote.hidden = true;
+  footerAccept.hidden = true;
   document.body.classList.remove("consent-open");
 });
 $("#decline-privacy").addEventListener("click", () => {
@@ -114,7 +118,30 @@ $("#decline-privacy").addEventListener("click", () => {
     localStorage.removeItem("weather-unit");
   } catch {}
   privacyNote.hidden = true;
+  footerAccept.hidden = false;
   document.body.classList.remove("consent-open");
+});
+
+$("#footer-clear-settings").addEventListener("click", () => {
+  try {
+    localStorage.removeItem("weather-location");
+    localStorage.removeItem("weather-theme");
+    localStorage.removeItem("weather-unit");
+    localStorage.removeItem("weather-privacy-accepted");
+    localStorage.removeItem("weather-save-disabled");
+  } catch {}
+  footerAccept.hidden = false;
+  privacyNote.hidden = false;
+  document.body.classList.add("consent-open");
+});
+
+$("#footer-accept").addEventListener("click", () => {
+  try {
+    localStorage.setItem("weather-privacy-accepted", "true");
+    localStorage.removeItem("weather-save-disabled");
+  } catch {}
+  if (forecastData) saveLocation(forecastData.weather.latitude, forecastData.weather.longitude, forecastData.location, forecastData.requestedDays || 7);
+  footerAccept.hidden = true;
 });
 
 themeToggle.addEventListener("click", () => {
