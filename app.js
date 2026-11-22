@@ -21,8 +21,8 @@ let locationLabel = "Glasgow, Scotland, GB";
 
 function savingAllowed() {
   try {
-    return localStorage.getItem("weather-privacy-accepted") === "true"
-      && localStorage.getItem("weather-location") !== null;
+    return localStorage.getItem("weather-privacy-choice") === "yes"
+      && localStorage.getItem("weather-privacy-accepted") === "true";
   } catch { return false; }
 }
 
@@ -141,7 +141,9 @@ $("#footer-accept").addEventListener("click", () => {
     localStorage.setItem("weather-privacy-choice", "yes");
     localStorage.setItem("weather-privacy-accepted", "true");
   } catch {}
-  if (forecastData) saveLocation(forecastData.weather.latitude, forecastData.weather.longitude, forecastData.location, forecastData.requestedDays || 7);
+  if (forecastData) {
+    saveLocation(forecastData.weather.latitude, forecastData.weather.longitude, forecastData.location, forecastData.requestedDays || 7);
+  }
   updateFooterConsent();
 });
 
