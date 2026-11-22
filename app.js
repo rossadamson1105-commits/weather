@@ -238,12 +238,13 @@ async function loadWeather(latitude, longitude, location, forecastDays = 7) {
 async function searchCity(city) {
   $("#status").hidden = false;
   $("#status").textContent = `Searching for ${city}...`;
-  const params = new URLSearchParams({ name: city, count: "1", language: "en", format: "json" });
+  const params = new URLSearchParams({ name: city, count: "10", language: "en", format: "json" });
   const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${params}`);
   if (!response.ok) throw new Error("City search is temporarily unavailable.");
   const result = await response.json();
   if (!result.results?.length) throw new Error(`Couldn't find "${city}". Try another city.`);
-  const place = result.results[0];
+  const exactMatches = result.results.filter((place) => place.name.toLowerCase() === city.toLowerCase());
+  const place = exactMatches.find((place) => place.country_code === "GB") || exactMatches[0] || result.results[0];
   const location = [place.name, place.admin1, place.country_code].filter(Boolean).join(", ");
   await loadWeather(place.latitude, place.longitude, location);
 }
@@ -256,8 +257,18 @@ $("#search-form").addEventListener("submit", async (event) => {
 
 $("#locate").addEventListener("click", () => {
   if (!navigator.geolocation) { $("#status").hidden = false; $("#status").textContent = "Location isn't available. Search for a city instead."; return; }
-  navigator.geolocation.getCurrentPosition(({ coords }) => {
-    loadWeather(coords.latitude, coords.longitude, "Your location").catch((error) => { $("#status").hidden = false; $("#status").textContent = error.message; });
+  navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+    let location = "Your location";
+    try {
+      const reverseParams = new URLSearchParams({ latitude: coords.latitude, longitude: coords.longitude, localityLanguage: "en" });
+      const reverseResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?${reverseParams}`);
+      if (reverseResponse.ok) {
+        const place = await reverseResponse.json();
+        const town = place.city || place.locality || place.principalSubdivision;
+        location = [town, place.principalSubdivision, place.countryCode].filter(Boolean).join(", ");
+      }
+    } catch {}
+    loadWeather(coords.latitude, coords.longitude, location).catch((error) => { $("#status").hidden = false; $("#status").textContent = error.message; });
   }, () => { $("#status").hidden = false; $("#status").textContent = "Couldn't access your location. Search for a city instead."; }, { timeout: 10000 });
 });
 
