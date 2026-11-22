@@ -84,6 +84,7 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .temperature { margin: 0; font-size: 79px; font-weight: 500; letter-spacing: 0; line-height: .96; }
 .temp-meta { display: grid; gap: 8px; color: #d3ddd2; font-size: 11px; }
 .temp-meta strong { color: white; font-weight: 600; }
+.temp-meta b { color: var(--humidity); font-size: 12px; font-weight: 400; }
 .weather-note { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 12px; margin: 0; padding-top: 12px; border-top: 1px solid #ffffff35; color: #e1e8df; font-size: 10px; }
 .weather-note span { color: #c1d0c3; font-size: 9px; letter-spacing: .7px; }
 .lower-grid { grid-template-columns: 1.07fr .93fr; margin-top: 15px; }
@@ -141,22 +142,26 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .day-outlook summary small { margin-left: auto; color: var(--muted); font-size: 8px; font-weight: 500; }
 .day-outlook-content { overflow-x: auto; }
 .outlook-table { width: 100%; border-collapse: collapse; table-layout: fixed; background: var(--soft); border: 0; border-top: 1px solid var(--line); overflow: hidden; }
-.outlook-table th, .outlook-table td { height: 24px; padding: 3px 5px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); text-align: center; font-size: 9px; }
+.outlook-table th, .outlook-table td { height: 34px; padding: 3px 5px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); text-align: center; font-size: 9px; }
 .outlook-table thead th { height: 28px; border-top: 0; color: var(--muted); font-size: 8px; font-weight: 700; }
 .outlook-table th:first-child { border-left: 0; }
 .outlook-table tbody th { width: 50px; border-left: 0; color: var(--accent); }
-.outlook-table tbody th b { font-size: 13px; font-weight: 400; }
+.outlook-table tbody th b { font-size: 20px; font-weight: 400; }
 .outlook-table td { color: var(--muted); }
-.outlook-table td strong { color: var(--ink); font-size: 10px; }
+.outlook-table td strong { color: var(--ink); font-size: 11px; }
+.wind-cell { min-height: 54px; display: grid; justify-items: center; align-content: center; gap: 1px; }
+.wind-cell b { display: block; color: var(--lime); font-size: 24px; line-height: 1; transform: rotate(var(--wind-angle)); transform-origin: 50% 50%; }
+.wind-cell strong { color: var(--ink); font-size: 12px; line-height: 1.1; }
+.wind-cell small { color: var(--lime); font-size: 10px; font-weight: 700; line-height: 1.1; }
 .outlook-stat-head { color: var(--muted); }
 .outlook-temp { display: inline-grid; grid-template-columns: auto auto; align-items: center; gap: 5px; }
-.outlook-temp b { color: var(--lime); font-size: 13px; font-weight: 400; }
-.stat-icon { position: relative; display: inline-grid; place-items: center; min-width: 22px; min-height: 22px; cursor: help; font-size: 14px; }
+.outlook-temp b { color: var(--lime); font-size: 20px; font-weight: 400; }
+.stat-icon { position: relative; display: inline-grid; place-items: center; min-width: 30px; min-height: 30px; cursor: help; font-size: 20px; }
 .stat-icon:hover::after, .stat-icon:focus-visible::after { content: attr(aria-label); position: absolute; z-index: 5; left: 50%; bottom: calc(100% + 5px); transform: translateX(-50%); width: max-content; max-width: 120px; padding: 5px 7px; border: 1px solid var(--line); border-radius: 4px; background: #000; color: #fff; font-size: 9px; }
 .rain-icon { color: var(--rain); }
-.rain-value { display: block; margin-top: 2px; color: var(--rain); font-size: 9px; }
-.humidity-icon { color: var(--humidity); font-size: 11px; }
-.outlook-row-icon { position: relative; display: inline-grid; place-items: center; cursor: help; }
+.rain-value { display: block; margin-top: 0; color: var(--rain); font-size: 9px; }
+.humidity-icon { color: var(--humidity); font-size: 20px; }
+.outlook-row-icon { position: relative; display: inline-grid; place-items: center; min-width: 32px; min-height: 32px; cursor: help; font-size: 20px; }
 .outlook-row-icon::after { content: attr(aria-label); position: absolute; z-index: 5; left: calc(100% + 7px); top: 50%; transform: translateY(-50%); width: max-content; padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; background: #000; color: #fff; font-size: 8px; opacity: 0; pointer-events: none; }
 .outlook-row-icon:hover::after, .outlook-row-icon:focus::after { opacity: 1; }
 .outlook-temperature { color: var(--lime); }

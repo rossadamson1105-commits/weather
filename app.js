@@ -99,7 +99,10 @@ async function loadSources(latitude, longitude) {
   const averageRain = average("rain");
   if (Number.isFinite(averageTemperature)) $("#temperature").textContent = displayTemp(averageTemperature);
   if (Number.isFinite(averageWind)) $("#wind").textContent = `${Math.round(averageWind)} mph avg`;
-  if (Number.isFinite(averageHumidity)) $("#humidity").textContent = `${Math.round(averageHumidity)}%`;
+  if (Number.isFinite(averageHumidity)) {
+    $("#humidity").textContent = `${Math.round(averageHumidity)}%`;
+    $("#headline-humidity").textContent = `${Math.round(averageHumidity)}%`;
+  }
   if (Number.isFinite(averageRain)) $("#rain").textContent = `${Math.round(averageRain)}%`;
 }
 
@@ -165,9 +168,10 @@ function renderForecast(data) {
       return directions[Math.round((degrees ?? 0) / 45) % 8];
     };
     const windCells = periods.map(({ periodIndex }) => {
+      const degrees = hourly.wind_direction_10m[periodIndex] ?? 0;
       const speed = Math.round(hourly.wind_speed_10m[periodIndex] ?? 0);
-      const direction = windDirection(hourly.wind_direction_10m[periodIndex]);
-      return `<td title="Wind: ${speed} mph ${direction}">${speed} ${direction}</td>`;
+      const direction = windDirection(degrees);
+      return `<td title="Wind: ${speed} mph from ${direction} (${degrees}°)"><span class="wind-cell"><b aria-hidden="true" style="--wind-angle:${degrees}deg">↑</b><strong>${speed} mph</strong><small>${direction}</small></span></td>`;
     }).join("");
     const rainCells = periods.map(({ periodIndex }) => {
       const chance = hourly.precipitation_probability[periodIndex] ?? 0;
@@ -186,9 +190,12 @@ function renderForecast(data) {
   }));
   $("#date-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", timeZone: data.weather.timezone }).format(new Date(current.time));
   const extendButton = $("#extend-forecast");
-  const loadedDays = daily.time.length;
+  const loadedDays = forecastData.requestedDays ?? daily.time.length;
+  $("#forecast-heading").textContent = `${loadedDays}-day forecast`;
+  $("#week-panel").setAttribute("aria-label", `${loadedDays}-day forecast`);
   extendButton.disabled = loadedDays >= 21;
-  extendButton.querySelector("small").textContent = loadedDays >= 21 ? "21 days loaded" : loadedDays >= 14 ? "Add 7 more days" : "Add 7 more days";
+  extendButton.setAttribute("aria-label", loadedDays >= 21 ? "21-day forecast loaded" : `Add 7 more days, show ${loadedDays >= 14 ? 21 : 14} days`);
+  extendButton.querySelector("small").textContent = loadedDays >= 21 ? "21 days loaded" : "Add 7 more days";
   $("#dashboard").hidden = false;
   $("#status").hidden = true;
 }
@@ -207,7 +214,7 @@ async function loadWeather(latitude, longitude, location, forecastDays = 7) {
   const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
   if (!response.ok) throw new Error("Weather data is temporarily unavailable.");
   const weather = await response.json();
-  renderForecast({ weather, location });
+  renderForecast({ weather, location, requestedDays: forecastDays });
   loadSources(latitude, longitude);
 }
 
@@ -239,7 +246,7 @@ $("#locate").addEventListener("click", () => {
 
 $("#extend-forecast").addEventListener("click", () => {
   if (!forecastData) return;
-  const currentDays = forecastData.weather.daily.time.length;
+  const currentDays = forecastData.requestedDays ?? 7;
   if (currentDays >= 21) return;
   const nextDays = currentDays >= 14 ? 21 : 14;
   loadWeather(forecastData.weather.latitude, forecastData.weather.longitude, forecastData.location, nextDays).catch((error) => {
