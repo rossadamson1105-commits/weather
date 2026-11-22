@@ -80,6 +80,7 @@ try {
 } catch {}
 setTheme(preferredTheme);
 const privacyNote = $("#privacy-note");
+document.body.classList.toggle("consent-open", privacyNote.hidden === false);
 try {
   if (localStorage.getItem("weather-privacy-accepted") !== "true") privacyNote.hidden = false;
 } catch {
@@ -101,6 +102,7 @@ $("#accept-privacy").addEventListener("click", () => {
     );
   }
   privacyNote.hidden = true;
+  document.body.classList.remove("consent-open");
 });
 $("#decline-privacy").addEventListener("click", () => {
   try {
@@ -111,6 +113,7 @@ $("#decline-privacy").addEventListener("click", () => {
     localStorage.removeItem("weather-unit");
   } catch {}
   privacyNote.hidden = true;
+  document.body.classList.remove("consent-open");
 });
 $("#clear-settings").addEventListener("click", () => {
   try {

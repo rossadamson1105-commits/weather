@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=consent-persist-1" />
-    <script src="app.js?v=consent-persist-1" defer></script>
+    <link rel="stylesheet" href="styles.css?v=consent-overlay-1" />
+    <script src="app.js?v=consent-overlay-1" defer></script>
   </head>
   <body>
     <header class="topbar">
@@ -84,12 +84,20 @@
         <p class="attribution">Weather data via <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a>.</p>
       </div>
     </main>
-    <aside class="privacy-note" id="privacy-note" role="dialog" aria-label="Saved preferences" hidden>
-      <p><strong>Nothing is collected</strong><br />Your location, theme, temperature unit, and forecast length are saved only in this browser. We cannot see or access them, and no tracking cookies are used.</p>
-      <div>
-        <button type="button" id="clear-settings">Clear saved settings</button>
-        <button type="button" id="decline-privacy">Don't save</button>
-        <button type="button" id="accept-privacy">Accept</button>
+    <aside class="privacy-note" id="privacy-note" role="dialog" aria-modal="true" aria-label="Saved preferences" hidden>
+      <div class="privacy-content">
+        <p class="privacy-eyebrow">Before you use Weather</p>
+        <h2>How saved preferences work</h2>
+        <ul>
+          <li><strong>What is saved:</strong> location, theme, temperature unit, and forecast length.</li>
+          <li><strong>What we collect:</strong> nothing. Saved settings stay in this browser; we cannot see or access them.</li>
+          <li><strong>If you choose Don't save:</strong> this device returns to Glasgow without remembering changes.</li>
+        </ul>
+        <div class="privacy-actions">
+          <button type="button" id="clear-settings">Clear saved settings</button>
+          <button type="button" id="decline-privacy">Don't save</button>
+          <button type="button" id="accept-privacy">Accept</button>
+        </div>
       </div>
     </aside>
     <footer><span>Weather</span><span>Plan better days.</span></footer>
