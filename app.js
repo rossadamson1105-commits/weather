@@ -137,7 +137,7 @@ function renderForecast(data) {
       const periodRain = hourly.precipitation_probability[periodIndex] ?? 0;
       const periodWind = Math.round(hourly.wind_speed_10m[periodIndex] ?? 0);
       const periodHumidity = hourly.relative_humidity_2m[periodIndex] ?? 0;
-      return `<div class="period"><small>${periodLabel}</small><b aria-hidden="true">${periodIcon}</b><strong>${displayTemp(hourly.temperature_2m[periodIndex])}</strong><span>☂ ${periodRain}%</span><span>↗ ${periodWind} mph</span><span>◌ ${periodHumidity}%</span></div>`;
+      return `<div class="period"><small class="period-time">${periodLabel}</small><div class="period-weather"><b aria-hidden="true">${periodIcon}</b><strong>${displayTemp(hourly.temperature_2m[periodIndex])}</strong></div><span class="period-condition"><b aria-hidden="true">☂</b><em>${periodRain}% rain</em></span><span class="period-condition"><b aria-hidden="true">↗</b><em>${periodWind} mph wind</em></span><span class="period-condition"><b aria-hidden="true">◌</b><em>${periodHumidity}% humidity</em></span></div>`;
     }).join("");
     const row = document.createElement("article");
     row.className = "day-row";

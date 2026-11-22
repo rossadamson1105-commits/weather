@@ -131,13 +131,16 @@ h1 { margin-bottom: 0; font: 500 clamp(33px, 4.2vw, 45px)/1.04 "Fraunces", Georg
 .day-rain span { font-size: 13px; }
 .day-outlook { grid-column: 1 / -1; min-width: 0; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
 .outlook-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 6px; background: var(--soft); }
-.period { min-width: 0; min-height: 82px; display: grid; grid-template-columns: 1fr auto; justify-items: center; align-items: center; column-gap: 6px; row-gap: 2px; padding: 7px 8px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; }
+.period { min-width: 0; min-height: 118px; display: grid; grid-template-columns: 1fr; justify-items: stretch; align-content: start; gap: 3px; padding: 7px 10px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .period:nth-child(4n + 1) { border-left: 0; }
 .period:nth-last-child(-n + 4) { border-bottom: 0; }
-.period small { grid-column: 1 / -1; color: var(--muted); font-size: 9px; text-align: center; }
-.period b { grid-column: 1; color: var(--accent); font-size: 18px; font-weight: 400; }
-.period strong { grid-column: 2; color: var(--ink); font-size: 12px; }
-.period span { grid-column: 1 / -1; color: var(--muted); font-size: 8px; white-space: nowrap; }
+.period-time { color: var(--muted); font-size: 9px; font-weight: 700; text-align: center; }
+.period-weather { display: grid; grid-template-columns: 1fr 1fr; align-items: center; margin: 1px 0 3px; }
+.period-weather b { color: var(--accent); font-size: 17px; font-weight: 400; text-align: center; }
+.period-weather strong { color: var(--ink); font-size: 12px; text-align: center; }
+.period-condition { display: grid; grid-template-columns: 24px 1fr; align-items: center; color: var(--muted); font-size: 8px; }
+.period-condition b { color: var(--accent); font-size: 13px; font-weight: 400; text-align: center; }
+.period-condition em { font-style: normal; white-space: nowrap; }
 
 .attribution { margin: 12px 0 0; color: var(--muted); font-size: 9px; }
 .attribution a { color: inherit; }
