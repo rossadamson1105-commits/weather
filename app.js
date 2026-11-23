@@ -201,12 +201,57 @@ function renderSources(results) {
   }));
 }
 
+function buildDailyAverages(results, dates, currentTime) {
+  const currentDate = currentTime.slice(0, 10);
+  const fields = ["uv", "cloud", "visibility", "pressure", "temperature", "apparent", "dewpoint", "gust", "precipitation", "solar"];
+  return Object.fromEntries(dates.map((date) => {
+    const dailyByModel = results.map(({ hourly }) => {
+      if (!hourly?.time) return null;
+      const indexes = hourly.time.map((time, index) => ({ time, index }))
+        .filter(({ time }) => time.startsWith(date) && (date !== currentDate || time >= currentTime))
+        .map(({ index }) => index);
+      const valuesFor = (field) => indexes.map((index) => hourly[field]?.[index]).filter(Number.isFinite);
+      const mean = (field) => {
+        const values = valuesFor(field);
+        return values.length ? values.reduce((total, value) => total + value, 0) / values.length : null;
+      };
+      const maximum = (field) => {
+        const values = valuesFor(field);
+        return values.length ? Math.max(...values) : null;
+      };
+      const precipitation = valuesFor("precipitation");
+      return {
+        uv: maximum("uv_index"),
+        cloud: mean("cloud_cover"),
+        visibility: mean("visibility"),
+        pressure: mean("pressure_msl"),
+        temperature: mean("temperature_2m"),
+        apparent: mean("apparent_temperature"),
+        dewpoint: mean("dew_point_2m"),
+        gust: maximum("wind_gusts_10m"),
+        precipitation: precipitation.length ? precipitation.reduce((total, value) => total + value, 0) : null,
+        solar: mean("shortwave_radiation"),
+      };
+    });
+    const averages = Object.fromEntries(fields.map((field) => {
+      const values = dailyByModel.map((model) => model?.[field]).filter(Number.isFinite);
+      return [field, {
+        value: values.length ? values.reduce((total, value) => total + value, 0) / values.length : null,
+        maximum: values.length ? Math.max(...values) : null,
+        minimum: values.length ? Math.min(...values) : null,
+        models: values.length,
+      }];
+    }));
+    return [date, averages];
+  }));
+}
+
 async function loadSources(latitude, longitude) {
   const results = await Promise.all(sources.map(async (source) => {
     try {
       const params = new URLSearchParams({
         latitude, longitude,
-        hourly: "temperature_2m,wind_speed_10m,wind_direction_10m,relative_humidity_2m,precipitation_probability",
+        hourly: "temperature_2m,apparent_temperature,dew_point_2m,wind_speed_10m,wind_gusts_10m,wind_direction_10m,relative_humidity_2m,precipitation_probability,precipitation,uv_index,cloud_cover,visibility,pressure_msl,shortwave_radiation",
         forecast_days: "14", temperature_unit: "fahrenheit", wind_speed_unit: "mph",
         timezone: "auto", models: source.model,
       });
@@ -226,6 +271,7 @@ async function loadSources(latitude, longitude) {
     }
   }));
   renderSources(results);
+  forecastData.averageDaily = buildDailyAverages(results, forecastData.weather.daily.time, forecastData.weather.current.time);
 
   const average = (key) => {
     const values = results.map((result) => result[key]).filter((value) => Number.isFinite(value));
@@ -267,8 +313,8 @@ async function loadSources(latitude, longitude) {
       relative_humidity_2m: time.map((_, index) => meanAt("relative_humidity_2m", index)),
     };
     forecastData.averageHourly = averageHourly;
-    renderForecast(forecastData);
   }
+  renderForecast(forecastData);
 }
 
 function renderForecast(data) {
@@ -300,9 +346,8 @@ function renderForecast(data) {
     const averagedHourly = data.averageHourly || hourly;
     const periods = hourly.time.map((time, periodIndex) => ({ time, periodIndex }))
       .filter(({ time }) => time.startsWith(date))
-      .filter(({ time }) => Number(time.slice(11, 13)) % 3 === 0)
       .filter(({ time }) => new Date(time).getTime() >= new Date(current.time).getTime())
-      .slice(0, 8);
+      .slice(0, 24);
     const timeHeaders = periods.map(({ time }) => {
       const timestamp = new Date(time);
       return `<th scope="col">${new Intl.DateTimeFormat(undefined, { hour: "numeric", timeZone: data.weather.timezone }).format(timestamp)}</th>`;
@@ -339,7 +384,45 @@ function renderForecast(data) {
     const open = index === 0 ? " open" : "";
     const row = document.createElement("article");
     row.className = "day-row";
-    row.innerHTML = `<div class="day-headline"><div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div></div><details class="day-outlook"${open}><summary><span>3-hour outlook</span><small>${periods.length} periods</small></summary><div class="day-outlook-content">${outlook}</div></details>`;
+      const formatLocalTime = (time) => {
+        if (!time) return "Unavailable";
+        const localClock = time.slice(11, 16);
+        const utcDate = new Date(`${date}T${localClock}:00Z`);
+        return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(utcDate);
+      };
+      const dailyAverages = {
+        ...(data.averageDaily?.[date] || {}),
+        sunrise: { value: formatLocalTime(daily.sunrise?.[index]), models: null },
+        sunset: { value: formatLocalTime(daily.sunset?.[index]), models: null },
+      };
+      const metricRow = (field, label, icon, description, format) => {
+        const result = dailyAverages[field];
+        const formatValue = (value) => Number.isFinite(value) ? format(value) : "Unavailable";
+        if (result?.models === null) {
+          return `<tr><th scope="row" title="${description}"><div class="daily-metric-label"><b class="outlook-row-icon" aria-label="${description}" tabindex="0">${icon}</b><span>${label}</span></div></th><td colspan="3" title="${description}"><strong>${result.value}</strong><small class="daily-model-count">Local time</small></td></tr>`;
+        }
+        const coverage = result ? `${result.models}/6 models` : "Waiting for model data";
+        const average = result ? formatValue(result.value) : "--";
+        const maximum = result ? formatValue(result.maximum) : "--";
+        const minimum = result ? formatValue(result.minimum) : "--";
+        return `<tr><th scope="row" title="${description}"><div class="daily-metric-label"><b class="outlook-row-icon" aria-label="${description}" tabindex="0">${icon}</b><span>${label}</span></div></th><td title="${description}"><strong>${average}</strong><small class="daily-model-count">${coverage}</small></td><td title="Maximum across available models"><strong>${maximum}</strong></td><td title="Minimum across available models"><strong>${minimum}</strong></td></tr>`;
+      };
+      const analyticsRows = [
+        ["uv", "Peak UV", "☀", "Average peak UV index for this day across available models", (value) => value.toFixed(1)],
+        ["cloud", "Cloud cover", "☁", "Mean cloud cover for this day across available models", (value) => `${Math.round(value)}%`],
+        ["visibility", "Visibility", "◉", "Mean visibility for this day across available models", (value) => `${(value / 1000).toFixed(1)} km`],
+        ["pressure", "Pressure", "↕", "Mean sea-level pressure for this day across available models", (value) => `${Math.round(value)} hPa`],
+        ["temperature", "Mean temperature", "°", "Mean temperature for this day across available models", displayTemp],
+        ["apparent", "Feels like", "♨", "Mean apparent temperature for this day across available models", displayTemp],
+        ["dewpoint", "Dew point", "≋", "Mean dew point for this day across available models", displayTemp],
+        ["gust", "Peak wind gust", "↗", "Average of each model's peak wind gust for this day", (value) => `${Math.round(value)} mph`],
+        ["precipitation", "Precipitation total", "☂", "Average total precipitation for this day across available models", (value) => `${value.toFixed(1)} mm`],
+        ["solar", "Solar radiation", "☼", "Mean solar radiation for this day across available models", (value) => `${Math.round(value)} W/m2`],
+        ["sunrise", "Sunrise", "☀", "Local sunrise time for this date", (value) => value],
+        ["sunset", "Sunset", "☾", "Local sunset time for this date", (value) => value],
+      ].map(([field, label, icon, description, format]) => metricRow(field, label, icon, description, format)).join("");
+      const analytics = `<details class="day-analytics"><summary><span>More daily analytics</span><small>12 daily indicators</small></summary><div class="day-analytics-content"><table class="outlook-table daily-average-table"><thead><tr><th scope="col" class="outlook-stat-head">Metric</th><th scope="col">Average</th><th scope="col">Maximum</th><th scope="col">Minimum</th></tr></thead><tbody>${analyticsRows}</tbody></table></div></details>`;
+    row.innerHTML = `<div class="day-headline"><div class="day-date"><strong>${label}</strong><small>${calendarDate}</small></div><div class="day-condition"><span class="day-icon" aria-hidden="true">${icon}</span><span>${condition}</span></div><div class="day-temperature"><strong>${displayTemp(daily.temperature_2m_max[index])}</strong><span>${displayTemp(daily.temperature_2m_min[index])} low</span></div><div class="day-rain"><span aria-hidden="true">☂</span>${rain}%</div></div><details class="day-outlook"${open}><summary><span>Hourly outlook</span><small>${periods.length} hours</small></summary><div class="day-outlook-content">${outlook}${analytics}</div></details>`;
     return row;
   }));
   $("#date-label").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", timeZone: data.weather.timezone }).format(new Date(current.time));
@@ -362,7 +445,7 @@ async function loadWeather(latitude, longitude, location, forecastDays = 7) {
     latitude, longitude,
     current: "temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m,wind_direction_10m",
     hourly: "temperature_2m,precipitation_probability,weather_code,relative_humidity_2m,wind_speed_10m,wind_direction_10m",
-    daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max",
+    daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,sunrise,sunset",
     temperature_unit: "fahrenheit", wind_speed_unit: "mph", timezone: "auto", forecast_days: String(forecastDays),
   });
   const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
